@@ -24,10 +24,14 @@ function handleFiles() {
   const reader = new FileReader();
   reader.addEventListener('load', onMp3Load);
   const reg = /\.mp3$/;
+  const errorDiv = document.getElementById('wrongFileError');
   if (file.name.match(reg) == null) {
     // TODO show wrong file format error here
-    console.log(file.name + ' is not an mp3 file.');
+    errorDiv.setAttribute('style', 'display: block');
+    errorDiv.innerHTML = file.name + ' is not an mp3 file.';
     return;
+  } else {
+    errorDiv.setAttribute('style', 'display: none');
   }
   reader.readAsDataURL(file);
   console.log(file.name);
