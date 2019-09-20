@@ -3,15 +3,13 @@ const audio = document.querySelector('audio');
 const track = audioCtx.createMediaElementSource(audio);
 track.connect(audioCtx.destination);
 
-var fileInput = document.getElementById('songFile');
+const fileInput = document.getElementById('songFile');
 fileInput.addEventListener('change', handleFiles);
-
 
 function onMp3Load(e) {
   // src of the mp3
   var src = e.target.result;
   audio.src = src;
-  audio.play();
 }
 
 /**
@@ -36,3 +34,22 @@ function handleFiles() {
   reader.readAsDataURL(file);
   console.log(file.name);
 }
+
+const playButton = document.querySelector('button');
+playButton.addEventListener('click', function() {
+    // check if context is in suspended state (autoplay policy)
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    // play or pause track depending on state
+    if (this.dataset.playing === 'false') {
+        playButton.innerHTML = "<span>Pause</span>";
+        audio.play();
+        this.dataset.playing = 'true';
+    } else if (this.dataset.playing === 'true') {
+        playButton.innerHTML = "<span>Play</span>";
+        audio.pause();
+        this.dataset.playing = 'false';
+    }
+});
