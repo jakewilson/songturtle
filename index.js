@@ -14,7 +14,7 @@ function onMp3Load(e) {
   //audio.src = src;
   audioCtx.decodeAudioData(e.target.result).then(function(audioBuffer) {
     source.buffer = audioBuffer;
-    const waveformData = getWaveformData(audioBuffer);
+    const waveformData = getRMSWaveformData(audioBuffer);
     drawWaveform(waveformData);
   });
 }
@@ -22,58 +22,47 @@ function onMp3Load(e) {
 function drawWaveform(waveformData) {
   const canvas = document.querySelector('canvas');
   const ctx = canvas.getContext('2d');
-  const scale = 100;
+  const scale = canvas.height / 2;
   const barWidth = canvas.width / waveformData.length;
 
-  var x = 0;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   ctx.fillStyle = 'red';
   waveformData.forEach((data, idx) => {
-    if (data > 0) data *= -1;
-    ctx.fillRect(x, canvas.height, barWidth, scale * data);
-    x += barWidth;
+    ctx.fillRect((idx * barWidth), canvas.height / 2, barWidth, scale * data);
+    ctx.fillRect((idx * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
   });
 }
 
-const waveform_picture_size = 200;
+const waveform_picture_size = 500;
 
 /**
  * Accepts an audio buffer, outputs an array of
  * floats equal to the waveform diagram "heights"
  */
-function getWaveformData(audioBuffer) {
+function getRMSWaveformData(audioBuffer) {
   const len = audioBuffer.length;
   // the increment to sample the audio buffer at
   const inc = Math.floor(len / waveform_picture_size);
-  // TODO for now we get data from the first channel
-  const channelData = audioBuffer.getChannelData(0);
+  const numChannels = audioBuffer.numberOfChannels;
+  const channelData0 = audioBuffer.getChannelData(0);
+  const channelData1 = audioBuffer.getChannelData(1);
   const a = new Float32Array(waveform_picture_size);
+
 
   var idx = 0;
   for (var i = 0; i < len; i += inc) {
-    var max = 0;
+    var meanSquare = 0;
     for (var j = i; j < (i + inc); j++) {
-      max = channelData[j] > max ? channelData[j] : max;
+      meanSquare += (channelData0[j] * channelData0[j]);
+      if (numChannels === 2) {
+        meanSquare += (channelData1[j] * channelData1[j]);
+      }
     }
-    a[idx++] = max;
+    a[idx++] = Math.sqrt(meanSquare/inc * numChannels);
   }
 
   return a;
-}
-
-function freqData() {
-  const analyser = audioCtx.createAnalyser();
-  track.connect(analyser);
-  analyser.connect(audioCtx.destination);
-
-  var freqData = new Uint8Array(analyser.frequencyBinCount);
-  function drawFreqData() {
-    window.requestAnimationFrame(drawFreqData);
-    
-    analyser.getByteFrequencyData(freqData);
-    console.log(freqData);
-  }
-
-  drawFreqData();
 }
 
 /**
@@ -88,7 +77,6 @@ function handleFiles() {
   const reg = /\.mp3$/;
   const errorDiv = document.getElementById('wrongFileError');
   if (file.name.match(reg) == null) {
-    // TODO show wrong file format error here
     errorDiv.setAttribute('style', 'display: block');
     errorDiv.innerHTML = file.name + ' is not an mp3 file.';
     return;
