@@ -2,6 +2,8 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 const audio = document.querySelector('audio');
 const source = audioCtx.createBufferSource();
 const track = audioCtx.createMediaElementSource(audio);
+const canvas = document.querySelector('canvas');
+const ctx = canvas.getContext('2d');
 track.connect(audioCtx.destination);
 source.connect(audioCtx.destination);
 
@@ -13,6 +15,8 @@ function onMp3Load(e) {
   var src = e.target.result;
   //audio.src = src;
   audioCtx.decodeAudioData(e.target.result).then(function(audioBuffer) {
+    document.getElementById('loadingDiv').setAttribute('style', 'display:none');
+    canvas.setAttribute('style', 'display:block');
     source.buffer = audioBuffer;
     const waveformData = getRMSWaveformData(audioBuffer);
     drawWaveform(waveformData);
@@ -20,8 +24,6 @@ function onMp3Load(e) {
 }
 
 function drawWaveform(waveformData) {
-  const canvas = document.querySelector('canvas');
-  const ctx = canvas.getContext('2d');
   const scale = canvas.height / 2;
   const barWidth = canvas.width / waveformData.length;
 
@@ -70,6 +72,8 @@ function getRMSWaveformData(audioBuffer) {
  */
 function handleFiles() {
   const files = this.files;
+  document.getElementById('loadingDiv').setAttribute('style', 'display:block');
+  canvas.setAttribute('style', 'display:none');
   if (files.length === 0) return;
   const file = files[0];
   const reader = new FileReader();
@@ -79,6 +83,7 @@ function handleFiles() {
   if (file.name.match(reg) == null) {
     errorDiv.setAttribute('style', 'display: block');
     errorDiv.innerHTML = file.name + ' is not an mp3 file.';
+    loaded = true;
     return;
   } else {
     errorDiv.setAttribute('style', 'display: none');
@@ -107,3 +112,4 @@ playButton.addEventListener('click', function() {
         this.dataset.playing = 'false';
     }
 });
+
