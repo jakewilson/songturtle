@@ -4,7 +4,7 @@ module.exports = function(grunt) {
     'Song.js',
     'index.js'
   ].map((it) => {
-    return './' + it
+    return 'js/' + it
   });
 
   // Project configuration.
