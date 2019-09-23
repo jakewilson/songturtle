@@ -1,25 +1,22 @@
 const audioCtx = new (window.AudioContext || window.webkitAudioContext);
-const audio = document.querySelector('audio');
-const source = audioCtx.createBufferSource();
-const track = audioCtx.createMediaElementSource(audio);
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
-track.connect(audioCtx.destination);
-source.connect(audioCtx.destination);
 
-var songPlaying = false;
+// the song to be played
+var song;
+
 var drawInterval;
 var songDuration;
 
 var waveformData;
-var audioBuffer;
 
 function onMp3Load(e) {
-  audioCtx.decodeAudioData(e.target.result).then(function(aBuffer) {
+  audioCtx.decodeAudioData(e.target.result).then(function(audioBuffer) {
+    // hide the loading div and show the canvas
     document.getElementById('loadingDiv').setAttribute('style', 'display:none');
     canvas.setAttribute('style', 'display:block');
-    audioBuffer = aBuffer;
-    source.buffer = audioBuffer;
+
+    song = new Song(audioCtx, audioBuffer);
     waveformData = getRMSWaveformData(audioBuffer);
     drawInitialWaveform(waveformData, canvas);
   });
@@ -144,10 +141,9 @@ playButton.addEventListener('click', function() {
     // play or pause track depending on state
     if (this.dataset.playing === 'false') {
         playButton.innerHTML = "<span>Pause</span>";
-        source.start();
-        songPlaying = true;
+        if (song) song.play();
         // convert from seconds to ms
-        drawIntervalMs = Math.floor(audioBuffer.duration/waveform_picture_size * 1000);
+        drawIntervalMs = Math.floor(song.duration/waveform_picture_size * 1000);
         console.log("interval: " + drawIntervalMs);
         lastCall = Date.now();
         drawInterval = setInterval(
@@ -155,13 +151,10 @@ playButton.addEventListener('click', function() {
           drawIntervalMs,
           waveformData, canvas // args to pass drawWaveform()
           );
-        //time = Date.now();
-        //drawInterval = setInterval(printBars, duration);
         this.dataset.playing = 'true';
     } else if (this.dataset.playing === 'true') {
         playButton.innerHTML = "<span>Play</span>";
-        source.stop();
-        songPlaying = false;
+        if (song) song.stop();
         clearInterval(drawInterval);
         this.dataset.playing = 'false';
     }

@@ -1,10 +1,9 @@
-function Song(audioBuffer) {
-  this.audioCtx = new (window.AudioContext || window.webkitAudioContext);
-  this.source = this.audioCtx.createBufferSource();
+function Song(audioCtx, audioBuffer) {
+  this.audioCtx = audioCtx;
   this.isPlaying = false;
   this.position = 0;
   this.audioBuffer = audioBuffer;
-  this.source.buffer = this.audioBuffer;
+  this.duration = this.audioBuffer.duration;
 
   /**
    * Play the song
@@ -12,6 +11,22 @@ function Song(audioBuffer) {
    */
   this.play = function(offset) {
     offset = offset || 0;
+
+    // AudioBufferSourceNodes can only be played once
+    // so we create a new one every time - this is relatively
+    // inexpensive
+    this.source = this.audioCtx.createBufferSource();
+    this.source.buffer = this.audioBuffer;
+    this.source.connect(this.audioCtx.destination);
+    this.source.start(offset);
     this.isPlaying = true;
-  }
+  };
+
+  /**
+   * Stop the song
+   */
+  this.stop = function() {
+    this.source.stop();
+    this.isPlaying = false;
+  };
 }
