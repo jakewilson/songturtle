@@ -35,7 +35,6 @@ function drawInitialWaveform(waveformData, canvas) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-
   ctx.fillStyle = 'red';
   for (var i = playedBars - 1; i < waveformData.length; i++) {
     var data = waveformData[i];
@@ -53,9 +52,11 @@ function drawWaveformProgress(waveformData, canvas) {
   const barWidth = canvas.width / waveformData.length;
   const ctx = canvas.getContext('2d');
   const delta = Date.now() - lastCall;
-  console.log(drawIntervalMs);
   playedBars += delta / drawIntervalMs;
+  if (Math.floor(playedBars) == waveformData.length) console.log("DONE!!!");
   lastCall = Date.now();
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = 'orange';
   for (var i = 0; i < playedBars; i++) {
@@ -64,18 +65,8 @@ function drawWaveformProgress(waveformData, canvas) {
     ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
   }
 
-  // get the decimal difference of the last bar
-  var ratio = playedBars - Math.floor(playedBars);
-  var data = waveformData[playedBars];
-  ctx.fillRect((playedBars * barWidth), canvas.height / 2, barWidth * ratio, scale * data);
-  ctx.fillRect((playedBars * barWidth), canvas.height / 2, barWidth * ratio, -1 * scale * data);
-
-  // fill in the other half
   ctx.fillStyle = 'red';
-  ctx.fillRect((playedBars * barWidth) + barWidth * ratio, canvas.height / 2, barWidth * (1 - ratio), scale * data);
-  ctx.fillRect((playedBars * barWidth) + barWidth * ratio, canvas.height / 2, barWidth * (1 - ratio), -1 * scale * data);
-
-  for (var i = playedBars - 1; i < waveformData.length; i++) {
+  for (var i = Math.ceil(playedBars); i < waveformData.length; i++) {
     var data = waveformData[i];
     ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
     ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
@@ -152,6 +143,7 @@ playButton.addEventListener('click', function() {
         songPlaying = true;
         // convert from seconds to ms
         drawIntervalMs = Math.floor(audioBuffer.duration/waveform_picture_size * 1000);
+        console.log("interval: " + drawIntervalMs);
         lastCall = Date.now();
         drawInterval = setInterval(
           drawWaveformProgress,
