@@ -24,31 +24,57 @@ function onMp3Load(e) {
     audioBuffer = aBuffer;
     source.buffer = audioBuffer;
     waveformData = getRMSWaveformData(audioBuffer);
-    drawWaveform(waveformData, canvas);
+    drawInitialWaveform(waveformData, canvas);
   });
 }
 
-// the number of bars that have been 'played' - these bars represent the
-// progress of the song so far
-var playedBars = 0;
-function drawWaveform(waveformData, canvas) {
+function drawInitialWaveform(waveformData, canvas) {
   const scale = canvas.height / 2;
   const barWidth = canvas.width / waveformData.length;
   const ctx = canvas.getContext('2d');
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (songPlaying) {
-    ctx.fillStyle = 'orange';
-    for (var i = 0; i < playedBars; i++) {
-      var data = waveformData[i];
-      ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
-      ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
-    }
-    playedBars++;
-  }
 
   ctx.fillStyle = 'red';
+  for (var i = playedBars - 1; i < waveformData.length; i++) {
+    var data = waveformData[i];
+    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
+    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
+  }
+}
+
+// the number of bars that have been 'played' - these bars represent the
+// progress of the song so far
+var playedBars = 0;
+var lastCall = 0;
+function drawWaveformProgress(waveformData, canvas) {
+  const scale = canvas.height / 2;
+  const barWidth = canvas.width / waveformData.length;
+  const ctx = canvas.getContext('2d');
+  const delta = Date.now() - lastCall;
+  console.log(drawIntervalMs);
+  playedBars += delta / drawIntervalMs;
+  lastCall = Date.now();
+
+  ctx.fillStyle = 'orange';
+  for (var i = 0; i < playedBars; i++) {
+    var data = waveformData[i];
+    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
+    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
+  }
+
+  // get the decimal difference of the last bar
+  var ratio = playedBars - Math.floor(playedBars);
+  var data = waveformData[playedBars];
+  ctx.fillRect((playedBars * barWidth), canvas.height / 2, barWidth * ratio, scale * data);
+  ctx.fillRect((playedBars * barWidth), canvas.height / 2, barWidth * ratio, -1 * scale * data);
+
+  // fill in the other half
+  ctx.fillStyle = 'red';
+  ctx.fillRect((playedBars * barWidth) + barWidth * ratio, canvas.height / 2, barWidth * (1 - ratio), scale * data);
+  ctx.fillRect((playedBars * barWidth) + barWidth * ratio, canvas.height / 2, barWidth * (1 - ratio), -1 * scale * data);
+
   for (var i = playedBars - 1; i < waveformData.length; i++) {
     var data = waveformData[i];
     ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
@@ -112,6 +138,7 @@ function handleFiles() {
 }
 
 const playButton = document.querySelector('button');
+var drawIntervalMs;
 playButton.addEventListener('click', function() {
     // check if context is in suspended state (autoplay policy)
     if (audioCtx.state === 'suspended') {
@@ -123,11 +150,16 @@ playButton.addEventListener('click', function() {
         playButton.innerHTML = "<span>Pause</span>";
         source.start();
         songPlaying = true;
+        // convert from seconds to ms
+        drawIntervalMs = Math.floor(audioBuffer.duration/waveform_picture_size * 1000);
+        lastCall = Date.now();
         drawInterval = setInterval(
-          drawWaveform,
-          audioBuffer.duration/waveform_picture_size * 1000, // convert from seconds to ms
+          drawWaveformProgress,
+          drawIntervalMs,
           waveformData, canvas // args to pass drawWaveform()
           );
+        //time = Date.now();
+        //drawInterval = setInterval(printBars, duration);
         this.dataset.playing = 'true';
     } else if (this.dataset.playing === 'true') {
         playButton.innerHTML = "<span>Play</span>";
