@@ -7,33 +7,53 @@ const ctx = canvas.getContext('2d');
 track.connect(audioCtx.destination);
 source.connect(audioCtx.destination);
 
+var songPlaying = false;
+var drawInterval;
+var songDuration;
+
 const fileInput = document.getElementById('songFile');
 fileInput.addEventListener('change', handleFiles);
 
+var waveformData;
+var audioBuffer;
+
 function onMp3Load(e) {
-  // src of the mp3
-  var src = e.target.result;
-  //audio.src = src;
-  audioCtx.decodeAudioData(e.target.result).then(function(audioBuffer) {
+  audioCtx.decodeAudioData(e.target.result).then(function(aBuffer) {
     document.getElementById('loadingDiv').setAttribute('style', 'display:none');
     canvas.setAttribute('style', 'display:block');
+    audioBuffer = aBuffer;
     source.buffer = audioBuffer;
-    const waveformData = getRMSWaveformData(audioBuffer);
-    drawWaveform(waveformData);
+    waveformData = getRMSWaveformData(audioBuffer);
+    drawWaveform(waveformData, canvas);
   });
 }
 
-function drawWaveform(waveformData) {
+// the number of bars that have been 'played' - these bars represent the
+// progress of the song so far
+var playedBars = 0;
+function drawWaveform(waveformData, canvas) {
   const scale = canvas.height / 2;
   const barWidth = canvas.width / waveformData.length;
+  const ctx = canvas.getContext('2d');
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  if (songPlaying) {
+    ctx.fillStyle = 'orange';
+    for (var i = 0; i < playedBars; i++) {
+      var data = waveformData[i];
+      ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
+      ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
+    }
+    playedBars++;
+  }
+
   ctx.fillStyle = 'red';
-  waveformData.forEach((data, idx) => {
-    ctx.fillRect((idx * barWidth), canvas.height / 2, barWidth, scale * data);
-    ctx.fillRect((idx * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
-  });
+  for (var i = playedBars - 1; i < waveformData.length; i++) {
+    var data = waveformData[i];
+    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
+    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
+  }
 }
 
 const waveform_picture_size = 500;
@@ -50,7 +70,6 @@ function getRMSWaveformData(audioBuffer) {
   const channelData0 = audioBuffer.getChannelData(0);
   const channelData1 = audioBuffer.getChannelData(1);
   const a = new Float32Array(waveform_picture_size);
-
 
   var idx = 0;
   for (var i = 0; i < len; i += inc) {
@@ -103,12 +122,18 @@ playButton.addEventListener('click', function() {
     if (this.dataset.playing === 'false') {
         playButton.innerHTML = "<span>Pause</span>";
         source.start();
-        //audio.play();
+        songPlaying = true;
+        drawInterval = setInterval(
+          drawWaveform,
+          audioBuffer.duration/waveform_picture_size * 1000, // convert from seconds to ms
+          waveformData, canvas // args to pass drawWaveform()
+          );
         this.dataset.playing = 'true';
     } else if (this.dataset.playing === 'true') {
         playButton.innerHTML = "<span>Play</span>";
         source.stop();
-        //audio.pause();
+        songPlaying = false;
+        clearInterval(drawInterval);
         this.dataset.playing = 'false';
     }
 });
