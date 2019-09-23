@@ -11,9 +11,6 @@ var songPlaying = false;
 var drawInterval;
 var songDuration;
 
-const fileInput = document.getElementById('songFile');
-fileInput.addEventListener('change', handleFiles);
-
 var waveformData;
 var audioBuffer;
 
@@ -103,27 +100,35 @@ function getRMSWaveformData(audioBuffer) {
   return a;
 }
 
+const fileInput = document.getElementById('songFile');
+fileInput.addEventListener('change', getFile);
+
 /**
- * If multiple mp3s were selected, pick the first one
+ * Loads the file selected by the user. If it is not an mp3, show an error and don't
+ * load the file.
  */
-function handleFiles() {
+function getFile() {
   const files = this.files;
-  document.getElementById('loadingDiv').setAttribute('style', 'display:block');
-  canvas.setAttribute('style', 'display:none');
-  if (files.length === 0) return;
+  if (files.length === 0)
+    return;
+
+  // if multiple mp3s are selected, pick the first one
   const file = files[0];
   const reader = new FileReader();
+
+  document.getElementById('loadingDiv').setAttribute('style', 'display:block');
+  canvas.setAttribute('style', 'display:none');
+
   reader.addEventListener('load', onMp3Load);
-  const reg = /\.mp3$/;
   const errorDiv = document.getElementById('wrongFileError');
-  if (file.name.match(reg) == null) {
+  if (file.name.match(/\.mp3$/) == null) {
     errorDiv.setAttribute('style', 'display: block');
     errorDiv.innerHTML = file.name + ' is not an mp3 file.';
-    loaded = true;
     return;
   } else {
     errorDiv.setAttribute('style', 'display: none');
   }
+
   reader.readAsArrayBuffer(file);
   console.log(file.name);
 }
