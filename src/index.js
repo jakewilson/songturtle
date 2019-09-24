@@ -2,10 +2,7 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext);
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
-// the song to be played
 var song;
-var drawInterval;
-var waveformData;
 
 function onMp3Load(e) {
   audioCtx.decodeAudioData(e.target.result).then(function(audioBuffer) {
@@ -13,43 +10,10 @@ function onMp3Load(e) {
     document.getElementById('loadingDiv').setAttribute('style', 'display:none');
     canvas.setAttribute('style', 'display:block');
 
-    song = new Song(audioCtx, audioBuffer);
-    waveformData = song.waveform.data;
+    song = new Song(audioCtx, audioBuffer, canvas);
     song.waveform.draw(canvas);
   });
 }
-
-// the number of bars that have been 'played' - these bars represent the
-// progress of the song so far
-var playedBars = 0;
-var lastCall = 0;
-function drawWaveformProgress(waveformData, canvas) {
-  const scale = canvas.height / 2;
-  const barWidth = canvas.width / waveformData.length;
-  const ctx = canvas.getContext('2d');
-  const delta = Date.now() - lastCall;
-  playedBars += delta / drawIntervalMs;
-  if (Math.floor(playedBars) == waveformData.length) console.log("DONE!!!");
-  lastCall = Date.now();
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = 'orange';
-  for (var i = 0; i < playedBars; i++) {
-    var data = waveformData[i];
-    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
-    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
-  }
-
-  ctx.fillStyle = 'red';
-  for (var i = Math.ceil(playedBars); i < waveformData.length; i++) {
-    var data = waveformData[i];
-    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
-    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
-  }
-}
-
-const waveform_picture_size = 500;
 
 const fileInput = document.getElementById('fileInput');
 fileInput.addEventListener('change', getFile);
@@ -98,20 +62,10 @@ playButton.addEventListener('click', function() {
     if (this.dataset.playing === 'false') {
         playButton.innerHTML = "<span>Pause</span>";
         song.play();
-        // convert from seconds to ms
-        drawIntervalMs = Math.floor(song.duration/waveform_picture_size * 1000);
-        console.log("interval: " + drawIntervalMs);
-        lastCall = Date.now();
-        drawInterval = setInterval(
-          drawWaveformProgress,
-          drawIntervalMs,
-          waveformData, canvas // args to pass drawWaveform()
-          );
         this.dataset.playing = 'true';
     } else if (this.dataset.playing === 'true') {
         playButton.innerHTML = "<span>Play</span>";
         song.stop();
-        clearInterval(drawInterval);
         this.dataset.playing = 'false';
     }
 });

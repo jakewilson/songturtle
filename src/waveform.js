@@ -41,7 +41,7 @@ function Waveform(audioBuffer, length) {
         }
       }
 
-      data[dataIdx++] = Math.sqrt(meanSquare/inc * numChannels);
+      data[dataIdx++] = Math.sqrt(meanSquare / inc * numChannels);
     }
 
     return data;
@@ -52,16 +52,26 @@ function Waveform(audioBuffer, length) {
   /**
    * Draws the waveform
    * @param canvas the canvas to draw on
+   * @param progress [optional] number of seconds since the song started
    */
-  this.draw = function(canvas) {
+  this.draw = function(canvas, progress) {
+    progress = progress || 0;
+
     const scale = canvas.height / 2;
     const barWidth = canvas.width / this.length;
     const ctx = canvas.getContext('2d');
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    const orangeBars = Math.floor((this.length / this.audioBuffer.duration) * progress);
+
+    ctx.fillStyle = 'orange';
+    for (var i = 0; i < orangeBars; i++) {
+      this._drawBar(ctx, (i * barWidth), canvas.height / 2, barWidth, scale * this.data[i]);
+    }
+
     ctx.fillStyle = 'red';
-    for (var i = playedBars - 1; i < this.data.length; i++) {
+    for (var i = orangeBars; i < this.data.length; i++) {
       this._drawBar(ctx, (i * barWidth), canvas.height / 2, barWidth, scale * this.data[i]);
     }
   };
