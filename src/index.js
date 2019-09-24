@@ -78,10 +78,17 @@ canvas.addEventListener('mousemove', function(e) {
   const ctx = canvas.getContext('2d');
 
   var mouse = mousePosToCanvasPos(e.clientX, e.clientY);
+
+  // these variables are in waveform_render.js
+  canvasMouseX = mouse.x; canvasMouseY = mouse.y;
 });
 
 canvas.addEventListener('mouseleave', function(event) {
-  
+  canvasMouseX = null; canvasMouseY = null;
+});
+
+canvas.addEventListener('mousedown', function(event) {
+  // TODO seek song
 });
 
 function mousePosToCanvasPos(mouseX, mouseY) {

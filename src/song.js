@@ -15,7 +15,7 @@ function Song(audioCtx, audioBuffer) {
    */
   this.timePlayed = 0;
 
-  this.waveform = new Waveform(this.audioBuffer, 500);
+  this.waveform = new Waveform(this.audioBuffer, 200);
 
   /**
    * Play the song

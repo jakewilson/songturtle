@@ -1,8 +1,6 @@
-var waveformColor = 'red';
+var waveformColor = 'rgb(230, 230, 230)';
 var waveformProgressColor = 'rgb(255, 127, 0)';
-
-var waveformColorMouse = 'rgb(255, 100, 0)';
-var waveformProgressColorMouse = 'rgb(255, 227, 0)';
+var waveformSelectedColor = 'rgb(247, 110, 110)';
 
 var canvasMouseX, canvasMouseY;
 
@@ -21,6 +19,7 @@ function drawWaveform(canvas, song) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // draw background
   ctx.fillStyle = 'rgb(150, 150, 150)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -29,13 +28,23 @@ function drawWaveform(canvas, song) {
   // if the mouse is in the canvas, draw all the colors as brighter, as well as make it clear
   // which part of the song the user is selecting
   if (canvasMouseX != null && canvasMouseY != null) {
+    // the x coordinate (in waveform "bar" units) of the mouse
+    const selectionX = Math.floor(canvasMouseX * (waveform.length / canvas.width));
+    const min = Math.min(selectionX, progressBars);
+    const max = (min === selectionX) ? progressBars : selectionX;
+
     ctx.fillStyle = waveformProgressColor;
-    for (var i = 0; i < progressBars; i++) {
+    for (var i = 0; i < min; i++) {
+      drawBar(ctx, (i * barWidth), canvas.height / 2, barWidth, scale * waveform.data[i]);
+    }
+
+    ctx.fillStyle = waveformSelectedColor;
+    for (var i = min; i < max; i++) {
       drawBar(ctx, (i * barWidth), canvas.height / 2, barWidth, scale * waveform.data[i]);
     }
 
     ctx.fillStyle = waveformColor;
-    for (var i = progressBars; i < waveform.data.length; i++) {
+    for (var i = max; i < waveform.data.length; i++) {
       drawBar(ctx, (i * barWidth), canvas.height / 2, barWidth, scale * waveform.data[i]);
     }
   } else { // mouse is not on the canvas
