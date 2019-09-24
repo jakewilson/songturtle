@@ -9,7 +9,7 @@ function Song(audioCtx, audioBuffer, canvas) {
   /**
    * How often to call this.timeStep()
    */
-  this.timeStepMs = 10;
+  this.timeStepMs = 20;
 
   /**
    * The amount of time the song has played for in ms
@@ -73,10 +73,12 @@ function Song(audioCtx, audioBuffer, canvas) {
 
     ctx.lastTimeStep = Date.now();
 
+    ctx.waveform.draw(ctx.canvas, ctx.timePlayed / 1000);
+
     if (Math.floor(ctx.timePlayed / 1000) >= ctx.duration) {
       ctx.stop();
+      // reset the song
+      ctx.timePlayed = 0;
     }
-
-    ctx.waveform.draw(ctx.canvas, ctx.timePlayed / 1000);
   };
 }
