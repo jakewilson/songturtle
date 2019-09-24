@@ -6,14 +6,20 @@ var song;
 var drawInterval;
 
 function onMp3Load(e) {
-  audioCtx.decodeAudioData(e.target.result).then(function(audioBuffer) {
-    // hide the loading div and show the canvas
-    document.getElementById('loadingDiv').setAttribute('style', 'display:none');
-    canvas.setAttribute('style', 'display: block;');
+  audioCtx.decodeAudioData(e.target.result, songInit, songInitError);
+}
 
-    song = new Song(audioCtx, audioBuffer, canvas);
-    drawWaveform(canvas, song);
-  });
+function songInit(audioBuffer) {
+  // hide the loading div and show the canvas
+  document.getElementById('loadingDiv').setAttribute('style', 'display:none');
+  canvas.setAttribute('style', 'display: block;');
+
+  song = new Song(audioCtx, audioBuffer, canvas);
+  drawWaveform(canvas, song);
+}
+
+function songInitError(error) {
+  console.log('error decoding song');
 }
 
 const fileInput = document.getElementById('fileInput');
