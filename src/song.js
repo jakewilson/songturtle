@@ -1,9 +1,8 @@
-function Song(audioCtx, audioBuffer, canvas) {
+function Song(audioCtx, audioBuffer) {
   this.audioCtx = audioCtx;
   this.isPlaying = false;
   this.audioBuffer = audioBuffer;
   this.duration = this.audioBuffer.duration;
-  this.canvas = canvas;
   this.intervalId = 0;
 
   /**
@@ -25,18 +24,22 @@ function Song(audioCtx, audioBuffer, canvas) {
   this.play = function(offset) {
     offset = offset || 0;
 
-    // AudioBufferSourceNodes can only be played once
-    // so we create a new one every time - this is relatively
-    // inexpensive
-    this.source = this.audioCtx.createBufferSource();
-    this.source.buffer = this.audioBuffer;
-    this.source.connect(this.audioCtx.destination);
+    this._createBufferSource();
     this.source.start(0, this.timePlayed / 1000);
     this.isPlaying = true;
 
     // start the song time step
     this.lastTimeStep = Date.now();
     this.intervalId = setInterval(this.timeStep, this.timeStepMs, this);
+  };
+
+  this._createBufferSource = function() {
+    // AudioBufferSourceNodes can only be played once
+    // so we create a new one every time - this is relatively
+    // inexpensive
+    this.source = this.audioCtx.createBufferSource();
+    this.source.buffer = this.audioBuffer;
+    this.source.connect(this.audioCtx.destination);
   };
 
   /**
@@ -57,8 +60,7 @@ function Song(audioCtx, audioBuffer, canvas) {
   /**
    * Should only be called by setInterval(). Responsible
    * for keeping track of how much time has passed in the song,
-   * drawing the updated waveform, stopping the song if it's finished
-   * and other song-related, time sensitive things
+   * stopping the song if it's finished, and other song-related, time sensitive things
    *
    * @param ctx the context with which to reference variables
    */
@@ -72,8 +74,6 @@ function Song(audioCtx, audioBuffer, canvas) {
     ctx.timePlayed += delta;
 
     ctx.lastTimeStep = Date.now();
-
-    ctx.waveform.draw(ctx.canvas, ctx.timePlayed / 1000);
 
     if (Math.floor(ctx.timePlayed / 1000) >= ctx.duration) {
       ctx.stop();

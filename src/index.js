@@ -3,15 +3,16 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
 var song;
+var drawInterval;
 
 function onMp3Load(e) {
   audioCtx.decodeAudioData(e.target.result).then(function(audioBuffer) {
     // hide the loading div and show the canvas
     document.getElementById('loadingDiv').setAttribute('style', 'display:none');
-    canvas.setAttribute('style', 'display:block');
+    canvas.setAttribute('style', 'display: block;');
 
     song = new Song(audioCtx, audioBuffer, canvas);
-    song.waveform.draw(canvas);
+    drawWaveform(canvas, song);
   });
 }
 
@@ -51,8 +52,8 @@ function getFile() {
   console.log(file.name);
 }
 
+
 const playButton = document.querySelector('button');
-var drawIntervalMs;
 playButton.addEventListener('click', function() {
     // don't bother doing anything if we don't have a song picked yet
     if (song == null)
@@ -62,11 +63,42 @@ playButton.addEventListener('click', function() {
     if (this.dataset.playing === 'false') {
         playButton.innerHTML = "<span>Pause</span>";
         song.play();
+        drawInterval = setInterval(drawWaveform, 40, canvas, song);
         this.dataset.playing = 'true';
     } else if (this.dataset.playing === 'true') {
         playButton.innerHTML = "<span>Play</span>";
         song.stop();
+        clearInterval(drawInterval);
         this.dataset.playing = 'false';
     }
 });
+
+
+canvas.addEventListener('mousemove', function(e) {
+  const ctx = canvas.getContext('2d');
+
+  var mouse = mousePosToCanvasPos(e.clientX, e.clientY);
+});
+
+canvas.addEventListener('mouseleave', function(event) {
+  
+});
+
+function mousePosToCanvasPos(mouseX, mouseY) {
+  // the "bounding rectangle" of the canvas - this contains
+  // the canvas coordinates relative to the page
+  const boundingRect = canvas.getClientRects()[0];
+
+  // this will give us the mouse position relative to the canvas in page
+  // coordinates
+  mouseX -= boundingRect.x;
+  mouseY -= boundingRect.y;
+
+  // now convert the page coordinates to canvas coordinates - where in the viewport
+  // the mouse was clicked
+  return {
+    x: mouseX * (canvas.width / boundingRect.width),
+    y: mouseY * (canvas.height / boundingRect.height)
+  };
+}
 
