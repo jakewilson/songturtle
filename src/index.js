@@ -76,20 +76,24 @@ playButton.addEventListener('click', function() {
 
 canvas.addEventListener('mousemove', function(e) {
   const ctx = canvas.getContext('2d');
-
-  var mouse = mousePosToCanvasPos(e.clientX, e.clientY);
-
-  // these variables are in waveform_render.js
-  canvasMouseX = mouse.x; canvasMouseY = mouse.y;
+  selectionBar = getSelectionBar(e);
 });
 
-canvas.addEventListener('mouseleave', function(event) {
-  canvasMouseX = null; canvasMouseY = null;
+canvas.addEventListener('mouseleave', function(e) {
+  selectionBar = null;
 });
 
-canvas.addEventListener('mousedown', function(event) {
-  // TODO seek song
+canvas.addEventListener('mousedown', function(e) {
+  var selection = getSelectionBar(e);
+  // convert the selection bar into actual seconds, then jump to that time
+  var offset = selection * (song.duration / song.waveform.length);
+  song.stop();
+  song.play(offset);
 });
+
+function getSelectionBar(e) {
+  return Math.floor(mousePosToCanvasPos(e.clientX, e.clientY).x * (song.waveform.length / canvas.width));
+}
 
 function mousePosToCanvasPos(mouseX, mouseY) {
   // the "bounding rectangle" of the canvas - this contains

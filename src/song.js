@@ -22,10 +22,14 @@ function Song(audioCtx, audioBuffer) {
    * @param offset the position in seconds at which to start the song
    */
   this.play = function(offset) {
-    offset = offset || 0;
+    if (offset === undefined || offset === null) {
+      offset = (this.timePlayed / 1000);
+    } else {
+      this.timePlayed = offset * 1000;
+    }
 
     this._createBufferSource();
-    this.source.start(0, this.timePlayed / 1000);
+    this.source.start(0, offset);
     this.isPlaying = true;
 
     // start the song time step
