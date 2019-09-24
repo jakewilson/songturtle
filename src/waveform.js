@@ -1,0 +1,73 @@
+/**
+ * A waveform
+ * @param audioBuffer the audio buffer to generate the waveform for
+ * @param length the length of the waveform; i.e. how many "bars" to draw 
+ *        for a visual representation. The longer the length, the more
+ *        accurate the waveform.
+ */
+function Waveform(audioBuffer, length) {
+  this.audioBuffer = audioBuffer;
+  this.length = length;
+
+  /**
+   * Calculates the root mean square for [this.length] samples of the
+   * audio PCM data.
+   * Because audio files contain so many samples, this is how we represent
+   * a song with only [this.length] numbers:
+   *    1. Divide the song length by the waveform length - this will be our increment
+   *    2. Step through the channel data by [increment]. For each chunk with size == increment, calculate the
+           root mean square and add it to the final data array.
+   *    3. These chunks are our waveform
+   */
+  this.rms = function() {
+    const songLength = this.audioBuffer.length;
+    // the increment to sample the audio buffer at
+    const inc = Math.floor(songLength / this.length);
+
+    const numChannels = this.audioBuffer.numberOfChannels;
+    const channelData = [];
+    for (var channel = 0; channel < numChannels; channel++) {
+      channelData.push(this.audioBuffer.getChannelData(channel));
+    }
+
+    const data = new Float32Array(this.length);
+
+    var dataIdx = 0;
+    for (var i = 0; i < songLength; i += inc) {
+      var meanSquare = 0;
+      for (var j = i; j < (i + inc); j++) {
+        for (var channel = 0; channel < numChannels; channel++) {
+          meanSquare += (channelData[channel][j] * channelData[channel][j]);
+        }
+      }
+
+      data[dataIdx++] = Math.sqrt(meanSquare/inc * numChannels);
+    }
+
+    return data;
+  };
+
+  this.data = this.rms();
+
+  /**
+   * Draws the waveform
+   * @param canvas the canvas to draw on
+   */
+  this.draw = function(canvas) {
+    const scale = canvas.height / 2;
+    const barWidth = canvas.width / this.length;
+    const ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'red';
+    for (var i = playedBars - 1; i < this.data.length; i++) {
+      this._drawBar(ctx, (i * barWidth), canvas.height / 2, barWidth, scale * this.data[i]);
+    }
+  };
+
+  this._drawBar = function(context, x, y, width, height) {
+    context.fillRect(x, y, width, height);
+    context.fillRect(x, y, width, -height);
+  };
+}

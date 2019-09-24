@@ -4,10 +4,7 @@ const ctx = canvas.getContext('2d');
 
 // the song to be played
 var song;
-
 var drawInterval;
-var songDuration;
-
 var waveformData;
 
 function onMp3Load(e) {
@@ -17,24 +14,9 @@ function onMp3Load(e) {
     canvas.setAttribute('style', 'display:block');
 
     song = new Song(audioCtx, audioBuffer);
-    waveformData = getRMSWaveformData(audioBuffer);
-    drawInitialWaveform(waveformData, canvas);
+    waveformData = song.waveform.data;
+    song.waveform.draw(canvas);
   });
-}
-
-function drawInitialWaveform(waveformData, canvas) {
-  const scale = canvas.height / 2;
-  const barWidth = canvas.width / waveformData.length;
-  const ctx = canvas.getContext('2d');
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = 'red';
-  for (var i = playedBars - 1; i < waveformData.length; i++) {
-    var data = waveformData[i];
-    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, scale * data);
-    ctx.fillRect((i * barWidth), canvas.height / 2, barWidth, -1 * scale * data);
-  }
 }
 
 // the number of bars that have been 'played' - these bars represent the
@@ -69,35 +51,7 @@ function drawWaveformProgress(waveformData, canvas) {
 
 const waveform_picture_size = 500;
 
-/**
- * Accepts an audio buffer, outputs an array of
- * floats equal to the waveform diagram "heights"
- */
-function getRMSWaveformData(audioBuffer) {
-  const len = audioBuffer.length;
-  // the increment to sample the audio buffer at
-  const inc = Math.floor(len / waveform_picture_size);
-  const numChannels = audioBuffer.numberOfChannels;
-  const channelData0 = audioBuffer.getChannelData(0);
-  const channelData1 = audioBuffer.getChannelData(1);
-  const a = new Float32Array(waveform_picture_size);
-
-  var idx = 0;
-  for (var i = 0; i < len; i += inc) {
-    var meanSquare = 0;
-    for (var j = i; j < (i + inc); j++) {
-      meanSquare += (channelData0[j] * channelData0[j]);
-      if (numChannels === 2) {
-        meanSquare += (channelData1[j] * channelData1[j]);
-      }
-    }
-    a[idx++] = Math.sqrt(meanSquare/inc * numChannels);
-  }
-
-  return a;
-}
-
-const fileInput = document.getElementById('songFile');
+const fileInput = document.getElementById('fileInput');
 fileInput.addEventListener('change', getFile);
 
 /**
@@ -113,10 +67,13 @@ function getFile() {
   const file = files[0];
   const reader = new FileReader();
 
+  // show the loading div and hide the canvas
   document.getElementById('loadingDiv').setAttribute('style', 'display:block');
   canvas.setAttribute('style', 'display:none');
 
   reader.addEventListener('load', onMp3Load);
+
+  // show an error if the file is not an mp3
   const errorDiv = document.getElementById('wrongFileError');
   if (file.name.match(/\.mp3$/) == null) {
     errorDiv.setAttribute('style', 'display: block');
@@ -133,15 +90,14 @@ function getFile() {
 const playButton = document.querySelector('button');
 var drawIntervalMs;
 playButton.addEventListener('click', function() {
-    // check if context is in suspended state (autoplay policy)
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
+    // don't bother doing anything if we don't have a song picked yet
+    if (song == null)
+      return;
 
     // play or pause track depending on state
     if (this.dataset.playing === 'false') {
         playButton.innerHTML = "<span>Pause</span>";
-        if (song) song.play();
+        song.play();
         // convert from seconds to ms
         drawIntervalMs = Math.floor(song.duration/waveform_picture_size * 1000);
         console.log("interval: " + drawIntervalMs);
@@ -154,7 +110,7 @@ playButton.addEventListener('click', function() {
         this.dataset.playing = 'true';
     } else if (this.dataset.playing === 'true') {
         playButton.innerHTML = "<span>Play</span>";
-        if (song) song.stop();
+        song.stop();
         clearInterval(drawInterval);
         this.dataset.playing = 'false';
     }

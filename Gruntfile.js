@@ -1,8 +1,9 @@
 module.exports = function(grunt) {
 
   var paths = [
-    'Song.js',
-    'index.js',
+    'waveform.js',
+    'song.js',
+    'index.js'
   ].map((it) => {
     return 'src/' + it
   });

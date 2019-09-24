@@ -5,6 +5,8 @@ function Song(audioCtx, audioBuffer) {
   this.audioBuffer = audioBuffer;
   this.duration = this.audioBuffer.duration;
 
+  this.waveform = new Waveform(this.audioBuffer, 500);
+
   /**
    * Play the song
    * @param offset the position at which to start the song
