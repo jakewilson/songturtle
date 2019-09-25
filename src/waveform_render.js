@@ -2,7 +2,6 @@ var waveformColor = 'rgb(230, 230, 230)';
 var waveformProgressColor = 'rgb(255, 127, 0)';
 var waveformSelectedColor = 'rgb(247, 110, 110)';
 
-var canvasMouseX, canvasMouseY;
 var selectionBar;
 
 function drawWaveform(canvas, song) {
@@ -11,6 +10,7 @@ function drawWaveform(canvas, song) {
     return;
   }
 
+  const ctx = canvas.getContext('2d');
   const progress = song.timePlayed / 1000;
   const waveform = song.waveform;
 
