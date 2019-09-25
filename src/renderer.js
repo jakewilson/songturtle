@@ -5,18 +5,24 @@ function Renderer(canvas, song) {
   this.waveformColor         = 'rgb(230, 230, 230)';
   this.waveformProgressColor = 'rgb(255, 127, 0)';
   this.waveformSelectedColor = 'rgb(247, 110, 110)';
+  this.loopColor             = 'rgb(0, 255, 150)';
+
   this.canvas = canvas;
   this.ctx = canvas.getContext('2d');
   this.song = song;
   this.waveform = song.waveform;
 
-  this.selectionBar;
+  this.selectionBar = null;
+
+  // the user-selected loop in "selection bar" coordinates
+  this.loopStart = null;
+  this.loopEnd = null;
 
   /**
    * Draws the waveform
    *
-   * @param renderer used for when this function is called on an interval, this
-   *        will be the context, since this cannot be used. Defaults to this
+   * @param renderer [optional] used for when this function is called on an interval, this
+   *        will be the context, since `this` cannot be used. Defaults to `this`
    */
   this.drawWaveform = function(renderer) {
     renderer = renderer || this;
@@ -37,7 +43,7 @@ function Renderer(canvas, song) {
     const progressBars = Math.floor((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
 
     // make it clear which part of the song the user is selecting
-    if (renderer.selectionBar != null) {
+    if (renderer.selectionBar !== null) {
       // the x coordinate (in waveform "bar" units) of the mouse
       const min = Math.min(renderer.selectionBar, progressBars);
       const max = (min === renderer.selectionBar) ? progressBars : renderer.selectionBar;
@@ -48,6 +54,14 @@ function Renderer(canvas, song) {
     } else {
       renderer._drawBars(renderer.waveformProgressColor, 0, progressBars);
       renderer._drawBars(renderer.waveformColor, progressBars);
+    }
+
+    // draw the selected loop
+    if (renderer.loopStart !== null && renderer.loopEnd !== null) {
+      const loopStart = Math.min(renderer.loopStart, renderer.loopEnd);
+      const loopEnd   = Math.max(renderer.loopStart, renderer.loopEnd);
+
+      renderer._drawBars(renderer.loopColor, loopStart, loopEnd + 1);
     }
   }
 

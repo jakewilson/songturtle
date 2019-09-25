@@ -147,37 +147,55 @@
     clock.innerHTML = seconds + "/" + formatTime(song.duration);
   }
 
+  /** the amount of time under which constitutes a click, over which a 'hold' */
+  const CLICK_TIME_MS = 300;
+
   canvas.addEventListener('mousemove', function(e) {
+    var selectionBar = getSelectionBar(e);
     if (song.isPlaying && renderer !== null) {
-      renderer.selectionBar = getSelectionBar(e);
+      renderer.selectionBar = selectionBar;
       clockSeconds = getSecondsFromSelectionBar(renderer.selectionBar);
       updateClock(song);
-      // if the time the user has had the mouse down is greater than the
-      // 'click' time, the user is dragging the mouse
-      if (mouseIsDown && Date.now() - mouseDownTime > CLICK_TIME_MS) {
-        loopEnd = renderer.selectionBar;
-        console.log(`selecting ${loopStart} to ${loopEnd}`);
+    }
+
+    // if the time the user has had the mouse down is greater than the
+    // 'click' time, the user is dragging the mouse
+    if (mouseIsDown && Date.now() - mouseDownTime > CLICK_TIME_MS) {
+      // turn off the selection if the user is selecting a loop
+      renderer.selectionBar = null;
+      renderer.loopStart = tempLoopStart;
+      renderer.loopEnd = selectionBar;
+
+      // allow the user to draw a loop if the song isn't playing
+      // we check to make sure it's not playing, because if it is then
+      // it will be drawn automatically
+      if (!song.isPlaying) {
+        renderer.drawWaveform(renderer);
       }
     }
   });
 
   canvas.addEventListener('mouseleave', function(e) {
-    renderer.selectionBar = null;
+    if (renderer)
+      renderer.selectionBar = null;
+
     clockSeconds = null;
     updateClock(song);
   });
 
   var mouseDownTime = null;
   var mouseIsDown = false;
-  // the starting point for the user-selected loop in "selection bar" coordinates
-  var loopStart = null, loopEnd = null;
+  var tempLoopStart = null;
+
   canvas.addEventListener('mousedown', function(e) {
     mouseIsDown = true;
     mouseDownTime = Date.now();
-    loopStart = getSelectionBar(e);
-  });
 
-  const CLICK_TIME_MS = 300;
+    // this is temporary because we don't yet know if the user is 
+    // intending to click or to drag. If it's a click, we don't want
+    // to change to loop, but if it's a drag we do. So we will wait
+    tempLoopStart = getSelectionBar(e);
+  });
 
   canvas.addEventListener('mouseup', function(e) {
     mouseIsDown = false;
@@ -195,7 +213,8 @@
       song.play(offset);
       updateClock(song);
     } else { // the user dragged the mouse
-      console.log(`selection was ${loopStart} - ${loopEnd}`);
+      if (renderer)
+        console.log(`selection was ${renderer.loopStart} - ${renderer.loopEnd}`);
     }
   });
 
