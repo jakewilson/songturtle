@@ -2,8 +2,8 @@
   const audioCtx = new (window.AudioContext || window.webkitAudioContext);
   const canvas = document.querySelector('canvas');
 
-  var song;
-  var drawInterval, clockInterval;
+  var song = null, renderer = null;
+  var drawInterval = null, clockInterval = null;
 
   function onMp3Load(e) {
     audioCtx.decodeAudioData(e.target.result, songInit, songInitError);
@@ -15,7 +15,8 @@
     showElement(canvas);
 
     song = new Song(audioCtx, audioBuffer, canvas);
-    drawWaveform(canvas, song);
+    renderer = new Renderer(canvas, song);
+    renderer.drawWaveform();
 
     var timeSpan = document.getElementById('timeSpan');
     timeSpan.innerHTML = `0:00/${formatTime(song.duration)}`;
@@ -92,14 +93,14 @@
    * Plays the song, changes DOM elements, and starts some intervals
    */
   function playSong() {
-    if (song === null) {
-      console.log('tried to play the song but it was null');
+    if (song === null || renderer === null) {
+      console.log('tried to play the song but it or the renderer was null');
       return;
     }
 
     playButton.innerHTML = "<span>Pause</span>";
     song.play();
-    drawInterval = setInterval(drawWaveform, 40, canvas, song);
+    drawInterval = setInterval(renderer.drawWaveform, 40, renderer);
     clockInterval = setInterval(updateClock, 500, song);
   }
 
@@ -147,31 +148,55 @@
   }
 
   canvas.addEventListener('mousemove', function(e) {
-    if (song.isPlaying) {
-      selectionBar = getSelectionBar(e);
-      clockSeconds = getSecondsFromSelectionBar(selectionBar);
+    if (song.isPlaying && renderer !== null) {
+      renderer.selectionBar = getSelectionBar(e);
+      clockSeconds = getSecondsFromSelectionBar(renderer.selectionBar);
       updateClock(song);
+      // if the time the user has had the mouse down is greater than the
+      // 'click' time, the user is dragging the mouse
+      if (mouseIsDown && Date.now() - mouseDownTime > CLICK_TIME_MS) {
+        loopEnd = renderer.selectionBar;
+        console.log(`selecting ${loopStart} to ${loopEnd}`);
+      }
     }
   });
 
   canvas.addEventListener('mouseleave', function(e) {
-    selectionBar = null;
+    renderer.selectionBar = null;
     clockSeconds = null;
     updateClock(song);
   });
 
+  var mouseDownTime = null;
+  var mouseIsDown = false;
+  // the starting point for the user-selected loop in "selection bar" coordinates
+  var loopStart = null, loopEnd = null;
   canvas.addEventListener('mousedown', function(e) {
-    if (!song.isPlaying) {
-      playSong();
-      return;
-    }
+    mouseIsDown = true;
+    mouseDownTime = Date.now();
+    loopStart = getSelectionBar(e);
+  });
 
-    var selection = getSelectionBar(e);
-    // convert the selection bar into actual seconds, then jump to that time
-    var offset = getSecondsFromSelectionBar(selection);
-    song.stop();
-    song.play(offset);
-    updateClock(song);
+  const CLICK_TIME_MS = 300;
+
+  canvas.addEventListener('mouseup', function(e) {
+    mouseIsDown = false;
+    if (Date.now() - mouseDownTime <= CLICK_TIME_MS) {
+      // the user clicked
+      if (!song.isPlaying) {
+        playSong();
+        return;
+      }
+
+      var selection = getSelectionBar(e);
+      // convert the selection bar into actual seconds, then jump to that time
+      var offset = getSecondsFromSelectionBar(selection);
+      song.stop();
+      song.play(offset);
+      updateClock(song);
+    } else { // the user dragged the mouse
+      console.log(`selection was ${loopStart} - ${loopEnd}`);
+    }
   });
 
   /**
