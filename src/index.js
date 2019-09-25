@@ -22,21 +22,6 @@ function songInit(audioBuffer) {
   showElement(timeSpan);
 }
 
-function formatTime(seconds) {
-  var minutes = Math.floor(seconds / 60);
-  var seconds = Math.ceil(seconds % 60);
-
-  return `${minutes}:${padSeconds(seconds)}`;
-}
-
-function padSeconds(seconds) {
-  if (seconds < 10) {
-    return `0${seconds}`;
-  }
-
-  return seconds;
-}
-
 function songInitError(error) {
   hideElement('loadingDiv');
   const errorDiv = document.getElementById('errorDiv');
@@ -56,6 +41,12 @@ function getFile() {
   const files = this.files;
   if (files.length === 0)
     return;
+
+  // make sure we don't play more than one song at the same time
+  if (song) {
+    stopSong();
+    song = null;
+  }
 
   // if multiple mp3s are selected, pick the first one
   const file = files[0];
@@ -155,42 +146,11 @@ function updateClock(song) {
   clock.innerHTML = seconds + "/" + formatTime(song.duration);
 }
 
-/**
- * Sets an elements display to the passed in value
- *
- * @param elem either the element object or an id string specifying which
- *        object to show
- * @param display [optional] defaults to 'block', but can be something else,
- *        like 'fixed' or 'absolute'
- */
-function showElement(elem, display) {
-  display = display || 'block';
-  if (typeof elem === 'string') {
-    document.getElementById(elem).setAttribute('style', `display:${display}`);
-  } else if (typeof elem === 'object') {
-    elem.setAttribute('style', `display:${display}`);
-  }
-}
-
-/**
- * Sets an elements display to 'none'
- *
- * @param elem either the element object or an id string specifying which
- *        object to show
- */
-function hideElement(elem) {
-  if (typeof elem === 'string') {
-    document.getElementById(elem).setAttribute('style', 'display:none');
-  } else if (typeof elem === 'object') {
-    elem.setAttribute('style', 'display:none');
-  }
-}
-
 canvas.addEventListener('mousemove', function(e) {
   if (song.isPlaying) {
     const ctx = canvas.getContext('2d');
     selectionBar = getSelectionBar(e);
-    clockSeconds = getSecondsFromSelection(selectionBar);
+    clockSeconds = getSecondsFromSelectionBar(selectionBar);
     updateClock(song);
   }
 });
@@ -198,6 +158,7 @@ canvas.addEventListener('mousemove', function(e) {
 canvas.addEventListener('mouseleave', function(e) {
   selectionBar = null;
   clockSeconds = null;
+  updateClock(song);
 });
 
 canvas.addEventListener('mousedown', function(e) {
@@ -208,46 +169,8 @@ canvas.addEventListener('mousedown', function(e) {
 
   var selection = getSelectionBar(e);
   // convert the selection bar into actual seconds, then jump to that time
-  var offset = getSecondsFromSelection(selection);
+  var offset = getSecondsFromSelectionBar(selection);
   song.stop();
   song.play(offset);
   updateClock(song);
 });
-
-function getSecondsFromSelection(selection) {
-  return selection * (song.duration / song.waveform.length);
-}
-
-/**
- * Returns the "bar" number on the track that the mouse is selecting
- *
- * @param e the event to get the mouse data from
- * @return a number between 0 and [waveform.length] specifying which bar is selected
- */
-function getSelectionBar(e) {
-  return Math.floor(mousePosToCanvasPos(e.clientX, e.clientY).x * (song.waveform.length / canvas.width));
-}
-
-/**
- * Converts mouse "page" coordinates to canvas coordinates
- *
- * @return an object with two attributes, x and y, of the canvas coordinates
- */
-function mousePosToCanvasPos(mouseX, mouseY) {
-  // the "bounding rectangle" of the canvas - this contains
-  // the canvas coordinates relative to the page
-  const boundingRect = canvas.getClientRects()[0];
-
-  // this will give us the mouse position relative to the canvas in page
-  // coordinates
-  mouseX -= boundingRect.x;
-  mouseY -= boundingRect.y;
-
-  // now convert the page coordinates to canvas coordinates - where in the viewport
-  // the mouse was clicked
-  return {
-    x: mouseX * (canvas.width / boundingRect.width),
-    y: mouseY * (canvas.height / boundingRect.height)
-  };
-}
-

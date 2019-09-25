@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<head>
+  <meta charset="UTF-8">
+  <title>[Test] Song Turtle</title>
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css">
+</head>
+<body>
+  <div class="container" style="display: none">
+    <div class="row">
+      <div class="col-sm"></div>
+      <div class="col-sm">
+        <h1>Upload an mp3 file</h1>
+      </div>
+      <div class="col-sm"></div>
+    </div>
+    <div class="row">
+      <div class="col-sm"></div>
+      <div class="col-sm">
+        <div class="alert alert-danger" role="alert" id="errorDiv" style='display: none'>
+          Wrong File Error
+        </div>
+      </div>
+      <div class="col-sm"></div>
+    </div>
+    <div class="row">
+      <div class="col-sm"></div>
+      <div class="col-sm">
+        <input id="fileInput" type="file" />
+      </div>
+      <div class="col-sm"></div>
+    </div>
+    <hr class="my-4">
+    <div class="row">
+      <div class="col-sm"></div>
+      <div class="col-sm">
+          <button class="btn btn-primary" data-playing="false" role="switch" aria-checked="false">
+              <span>Play</span>
+          </button>
+        <audio type="audio/mpeg"></audio>
+      </div>
+      <div class="col-sm"></div>
+    </div>
+    <div class="row">
+      <div class="col-sm-2"></div>
+      <div class="col-md">
+        <div class="alert alert-primary" role="alert" id="loadingDiv" style='display:none'>
+          Loading...
+        </div>
+        <span id="timeSpan" style="display: none">0:00/0:00</span>
+        <canvas class="w-100 h-25" style="display:none"></canvas>
+      </div>
+      <div class="col-sm-2"></div>
+    </div>
+    <script src="../build/songturtle.min.js"></script>
+  </div>
+  <div id="mocha"></div>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/chai/chai.js"></script>
+  <script>
+      mocha.ui('bdd'); 
+      mocha.reporter('html');
+      var assert = chai.assert;
+  </script>
+  <script src="./util_spec.js"></script>
+  <script>
+      mocha.run();
+  </script>
+</body>

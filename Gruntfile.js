@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
 
   var paths = [
+    'util.js',
     'waveform.js',
     'song.js',
     'waveform_render.js',
