@@ -22,6 +22,9 @@ function Song(audioCtx, audioBuffer) {
    * @param offset the position in seconds at which to start the song
    */
   this.play = function(offset) {
+    if (this.isPlaying)
+      return;
+
     if (offset === undefined || offset === null) {
       offset = (this.timePlayed / 1000);
     } else {
@@ -50,6 +53,9 @@ function Song(audioCtx, audioBuffer) {
    * Stop the song
    */
   this.stop = function() {
+    if (!this.isPlaying)
+      return;
+
     this.source.stop();
     this.isPlaying = false;
 
