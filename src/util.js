@@ -11,15 +11,10 @@
  * @return the formatted time
  */
 function formatTime(seconds) {
-  var minutes = Math.floor(seconds / 60);
-  var seconds = Math.ceil(seconds % 60);
+  const minutes = Math.floor(seconds / 60);
+  const newSeconds = Math.floor(seconds % 60);
 
-  if (seconds == 60) {
-    seconds = 0;
-    minutes++;
-  }
-
-  return `${minutes}:${padSeconds(seconds)}`;
+  return `${minutes}:${padSeconds(newSeconds)}`;
 }
 
 /**

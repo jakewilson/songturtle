@@ -5,7 +5,9 @@ function Renderer(canvas, song) {
   this.waveformColor         = 'rgb(230, 230, 230)';
   this.waveformProgressColor = 'rgb(255, 127, 0)';
   this.waveformSelectedColor = 'rgb(247, 110, 110)';
-  this.loopColor             = 'rgb(0, 255, 150)';
+
+  this.loopColor         = 'rgb(0, 255, 150)';
+  this.loopProgressColor = 'rgb(100, 0, 200)';
 
   this.canvas = canvas;
   this.ctx = canvas.getContext('2d');
@@ -32,7 +34,7 @@ function Renderer(canvas, song) {
       return;
     }
 
-    const progress = renderer.song.timePlayed / 1000;
+    const progress = renderer.song.timePlayed;
 
     renderer.ctx.clearRect(0, 0, renderer.canvas.width, renderer.canvas.height);
 
@@ -42,27 +44,40 @@ function Renderer(canvas, song) {
 
     const progressBars = Math.floor((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
 
-    // make it clear which part of the song the user is selecting
-    if (renderer.selectionBar !== null) {
-      // the x coordinate (in waveform "bar" units) of the mouse
-      const min = Math.min(renderer.selectionBar, progressBars);
-      const max = (min === renderer.selectionBar) ? progressBars : renderer.selectionBar;
+    if (renderer.song.loop === false) {
+      // make it clear which part of the song the user is selecting
+      if (renderer.selectionBar !== null) {
+        // the x coordinate (in waveform "bar" units) of the mouse
+        const min = Math.min(renderer.selectionBar, progressBars);
+        const max = (min === renderer.selectionBar) ? progressBars : renderer.selectionBar;
 
-      renderer._drawBars(renderer.waveformProgressColor, 0, min);
-      renderer._drawBars(renderer.waveformSelectedColor, min, max);
-      renderer._drawBars(renderer.waveformColor, max);
-    } else {
-      renderer._drawBars(renderer.waveformProgressColor, 0, progressBars);
-      renderer._drawBars(renderer.waveformColor, progressBars);
+        renderer._drawBars(renderer.waveformProgressColor, 0, min);
+        renderer._drawBars(renderer.waveformSelectedColor, min, max);
+        renderer._drawBars(renderer.waveformColor, max);
+      } else {
+        renderer._drawBars(renderer.waveformProgressColor, 0, progressBars);
+        renderer._drawBars(renderer.waveformColor, progressBars);
+      }
+
+      // draw the selected loop
+      if (renderer.loopStart !== null && renderer.loopEnd !== null) {
+        const loopStart = Math.min(renderer.loopStart, renderer.loopEnd);
+        const loopEnd   = Math.max(renderer.loopStart, renderer.loopEnd);
+
+        renderer._drawBars(renderer.loopColor, loopStart, loopEnd + 1);
+      }
+    } else { // the song is looping
+      // draw the selected loop
+      if (renderer.loopStart !== null && renderer.loopEnd !== null) {
+        renderer._drawBars(renderer.waveformColor, 0, renderer.loopStart);
+
+        renderer._drawBars(renderer.loopProgressColor, renderer.loopStart, renderer.loopStart + progressBars + 1);
+        renderer._drawBars(renderer.loopColor, renderer.loopStart + progressBars + 1, renderer.loopEnd + 1);
+
+        renderer._drawBars(renderer.waveformColor, renderer.loopEnd + 1);
+      }
     }
 
-    // draw the selected loop
-    if (renderer.loopStart !== null && renderer.loopEnd !== null) {
-      const loopStart = Math.min(renderer.loopStart, renderer.loopEnd);
-      const loopEnd   = Math.max(renderer.loopStart, renderer.loopEnd);
-
-      renderer._drawBars(renderer.loopColor, loopStart, loopEnd + 1);
-    }
   }
 
   /**

@@ -91,15 +91,17 @@
 
   /**
    * Plays the song, changes DOM elements, and starts some intervals
+   *
+   * @param offset [optional] the offset at which to play the song
    */
-  function playSong() {
+  function playSong(offset) {
     if (song === null || renderer === null) {
       console.log('tried to play the song but it or the renderer was null');
       return;
     }
 
     playButton.innerHTML = "<span>Pause</span>";
-    song.play();
+    song.play(offset);
     drawInterval = setInterval(renderer.drawWaveform, 40, renderer);
     clockInterval = setInterval(updateClock, 500, song);
   }
@@ -138,7 +140,7 @@
   function updateClock(song) {
     var seconds = clockSeconds;
     if (seconds === null) {
-      seconds = song.timePlayed / 1000;
+      seconds = song.timePlayed;
     }
 
     seconds = formatTime(seconds);
@@ -207,14 +209,27 @@
       }
 
       var selection = getSelectionBar(e);
+      console.log(`clicked ${selection}`);
       // convert the selection bar into actual seconds, then jump to that time
       var offset = getSecondsFromSelectionBar(selection);
       song.stop();
       song.play(offset);
       updateClock(song);
     } else { // the user dragged the mouse
-      if (renderer)
-        console.log(`selection was ${renderer.loopStart} - ${renderer.loopEnd}`);
+      // if the user dragged the mouse to the left, we will switch
+      // the start and end positions
+      const start = Math.min(renderer.loopStart, renderer.loopEnd);
+      const end   = Math.max(renderer.loopStart, renderer.loopEnd);
+
+      renderer.loopStart = start;
+      renderer.loopEnd   = end;
+
+      song.loop = true;
+      song.loopStart = Math.floor(getSecondsFromSelectionBar(start));
+      song.loopEnd = Math.floor(getSecondsFromSelectionBar(end));
+
+      stopSong();
+      playSong(song.loopStart);
     }
   });
 
