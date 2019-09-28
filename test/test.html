@@ -56,12 +56,14 @@
   <div id="mocha"></div>
   <script src="../node_modules/mocha/mocha.js"></script>
   <script src="../node_modules/chai/chai.js"></script>
+  <script src="../node_modules/chai-spies/chai-spies.js"></script>
   <script>
       mocha.ui('bdd'); 
       mocha.reporter('html');
       var assert = chai.assert;
   </script>
-  <script src="./util_spec.js"></script>
+  <script src="./util_test.js"></script>
+  <script src="./song_test.js"></script>
   <script>
       mocha.run();
   </script>

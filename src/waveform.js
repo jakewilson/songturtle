@@ -41,7 +41,7 @@ function Waveform(audioBuffer, length) {
         }
       }
 
-      data[dataIdx++] = Math.sqrt(meanSquare / inc * numChannels);
+      data[dataIdx++] = Math.sqrt(meanSquare / (inc * numChannels));
     }
 
     return data;
