@@ -48,12 +48,12 @@ function Song(audioCtx, audioBuffer) {
 
     this._createBufferSource();
     this.source.start(0, offset);
-    this.startTime = this.audioCtx.currentTime;
+    this.startTime = this.getCurrentTime();
     this.isPlaying = true;
 
     this.lastTimeStep = this.startTime;
     // start the song time step
-    this.intervalId = setInterval(this.timeStep, this.timeStepMs, this);
+    this.intervalId = setInterval(this.timeStep.bind(this), this.timeStepMs);
   };
 
   /**
@@ -82,10 +82,13 @@ function Song(audioCtx, audioBuffer) {
     if (!this.isPlaying)
       return;
 
+    clearInterval(this.intervalId);
+    // move the position along however by however much
+    // time has passed since the last timestep
+    this.timeStep();
+
     this.source.stop();
     this.isPlaying = false;
-
-    clearInterval(this.intervalId);
   };
 
   this.lastTimeStep = 0;
@@ -97,20 +100,31 @@ function Song(audioCtx, audioBuffer) {
    *
    * @param song the context with which to reference variables
    */
-  this.timeStep = function(song) {
-    song.timePlayed = song.audioCtx.currentTime - song.startTime;
-    song.position += song.audioCtx.currentTime - song.lastTimeStep;
+  this.timeStep = function() {
+    if (!this.isPlaying)
+      return;
 
-    if (song.loop) {
-      const loopStart = song.loopStart;
-      const loopEnd = song.loopEnd;
+    this.timePlayed = this.getCurrentTime() - this.startTime;
+    this.position += this.getCurrentTime() - this.lastTimeStep;
+
+    if (this.loop) {
+      const loopStart = this.loopStart;
+      const loopEnd = this.loopEnd;
       const loopDuration = loopEnd - loopStart;
 
-      if (song.position >= loopEnd) {
-        song.position = loopStart + (song.position - loopEnd);
+      if (this.position >= loopEnd) {
+        this.position = loopStart + (this.position - loopEnd);
       }
     }
 
-    song.lastTimeStep = audioCtx.currentTime;
+    this.lastTimeStep = this.getCurrentTime();
+  };
+
+  /**
+   * Returns the current world time, not the current song time. Used for calculating
+   * the current song time
+   */
+  this.getCurrentTime = function() {
+    return this.audioCtx.currentTime;
   };
 }
