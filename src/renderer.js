@@ -34,7 +34,7 @@ function Renderer(canvas, song) {
       return;
     }
 
-    const progress = renderer.song.timePlayed;
+    const progress = renderer.song.position;
 
     renderer.ctx.clearRect(0, 0, renderer.canvas.width, renderer.canvas.height);
 
@@ -71,8 +71,8 @@ function Renderer(canvas, song) {
       if (renderer.loopStart !== null && renderer.loopEnd !== null) {
         renderer._drawBars(renderer.waveformColor, 0, renderer.loopStart);
 
-        renderer._drawBars(renderer.loopProgressColor, renderer.loopStart, renderer.loopStart + progressBars + 1);
-        renderer._drawBars(renderer.loopColor, renderer.loopStart + progressBars + 1, renderer.loopEnd + 1);
+        renderer._drawBars(renderer.loopProgressColor, renderer.loopStart, progressBars + 1);
+        renderer._drawBars(renderer.loopColor, progressBars + 1, renderer.loopEnd + 1);
 
         renderer._drawBars(renderer.waveformColor, renderer.loopEnd + 1);
       }

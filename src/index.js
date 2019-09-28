@@ -103,7 +103,7 @@
     playButton.innerHTML = "<span>Pause</span>";
     song.play(offset);
     drawInterval = setInterval(renderer.drawWaveform, 40, renderer);
-    clockInterval = setInterval(updateClock, 500, song);
+    clockInterval = setInterval(updateClock, 200, song);
   }
 
   /**
@@ -140,7 +140,7 @@
   function updateClock(song) {
     var seconds = clockSeconds;
     if (seconds === null) {
-      seconds = song.timePlayed;
+      seconds = song.position;
     }
 
     seconds = formatTime(seconds);

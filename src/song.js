@@ -11,6 +11,11 @@ function Song(audioCtx, audioBuffer) {
   this.timeStepMs = 50;
 
   /**
+   * The position in seconds
+   */
+  this.position = 0;
+
+  /**
    * The amount of time the song has played for in ms
    */
   this.timePlayed = 0;
@@ -33,10 +38,10 @@ function Song(audioCtx, audioBuffer) {
       return;
 
     if (offset === undefined || offset === null) {
-      offset = this.timePlayed;
+      offset = this.position;
     } else {
-      this.timePlayed = offset;
-      console.log(`setting time played to ${this.timePlayed}`);
+      this.position = offset;
+      console.log(`setting position to ${this.position}`);
     }
 
     this._createBufferSource();
@@ -44,6 +49,7 @@ function Song(audioCtx, audioBuffer) {
     this.startTime = this.audioCtx.currentTime;
     this.isPlaying = true;
 
+    this.lastTimeStep = this.startTime;
     // start the song time step
     this.intervalId = setInterval(this.timeStep, this.timeStepMs, this);
   };
@@ -64,8 +70,6 @@ function Song(audioCtx, audioBuffer) {
       this.source.loopEnd = this.loopEnd;
     }
 
-    this.source.onended = this.onend.bind(this);
-
     this.source.connect(this.audioCtx.destination);
   };
 
@@ -82,13 +86,7 @@ function Song(audioCtx, audioBuffer) {
     clearInterval(this.intervalId);
   };
 
-  /**
-   * Called by the audio context when the song ends
-   */
-  this.onend = function() {
-    this.timePlayed = 0;
-    this.stop();
-  };
+  this.lastTimeStep = 0;
 
   /**
    * Should only be called by setInterval(). Responsible
@@ -99,20 +97,18 @@ function Song(audioCtx, audioBuffer) {
    */
   this.timeStep = function(song) {
     song.timePlayed = song.audioCtx.currentTime - song.startTime;
+    song.position += song.audioCtx.currentTime - song.lastTimeStep;
+
     if (song.loop) {
-      const time = song.timePlayed;
       const loopStart = song.loopStart;
       const loopEnd = song.loopEnd;
       const loopDuration = loopEnd - loopStart;
 
-      // every time the song has looped, increment the start time
-      // by the loop duration manually. This avoids slowly falling
-      // behind when song.timePlayed is greater than loopDuration by
-      // an ever increasing amount
-      if (song.timePlayed >= loopDuration) {
-        song.startTime += loopDuration;
-        song.timePlayed = 0;
+      if (song.position >= loopEnd) {
+        song.position = loopStart + (song.position - loopEnd);
       }
     }
+
+    song.lastTimeStep = audioCtx.currentTime;
   };
 }
