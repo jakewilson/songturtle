@@ -193,7 +193,7 @@
     mouseIsDown = true;
     mouseDownTime = Date.now();
 
-    // this is temporary because we don't yet know if the user is 
+    // this variable is 'temporary' because we don't yet know if the user is
     // intending to click or to drag. If it's a click, we don't want
     // to change to loop, but if it's a drag we do. So we will wait
     tempLoopStart = getSelectionBar(e);
@@ -212,8 +212,7 @@
       console.log(`clicked ${selection}`);
       // convert the selection bar into actual seconds, then jump to that time
       var offset = getSecondsFromSelectionBar(selection);
-      song.stop();
-      song.play(offset);
+      song.seek(offset);
       updateClock(song);
     } else { // the user dragged the mouse
       // if the user dragged the mouse to the left, we will switch
@@ -224,11 +223,12 @@
       renderer.loopStart = start;
       renderer.loopEnd   = end;
 
-      song.loop = true;
-      song.loopStart = Math.floor(getSecondsFromSelectionBar(start));
-      song.loopEnd = Math.floor(getSecondsFromSelectionBar(end));
-
       stopSong();
+
+      const loopStartSeconds = Math.floor(getSecondsFromSelectionBar(start));
+      const loopEndSeconds = Math.floor(getSecondsFromSelectionBar(end));
+
+      song.loop(loopStartSeconds, loopEndSeconds);
       playSong(song.loopStart);
     }
   });

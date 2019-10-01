@@ -44,7 +44,7 @@ function Renderer(canvas, song) {
 
     const progressBars = Math.floor((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
 
-    if (renderer.song.loop === false) {
+    if (renderer.song.looping === false) {
       // make it clear which part of the song the user is selecting
       if (renderer.selectionBar !== null) {
         // the x coordinate (in waveform "bar" units) of the mouse

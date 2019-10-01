@@ -24,7 +24,7 @@ function Song(audioCtx, audioBuffer) {
 
   this.waveform = new Waveform(this.audioBuffer, this.waveformLength);
 
-  this.loop = false;
+  this.looping = false;
   this.loopStart = 0;
   this.loopEnd = 0;
 
@@ -43,7 +43,6 @@ function Song(audioCtx, audioBuffer) {
       offset = this.position;
     } else {
       this.position = offset;
-      console.log(`setting position to ${this.position}`);
     }
 
     this._createBufferSource();
@@ -65,7 +64,7 @@ function Song(audioCtx, audioBuffer) {
     this.source = this.audioCtx.createBufferSource();
     this.source.buffer = this.audioBuffer;
 
-    if (this.loop) {
+    if (this.looping) {
       console.log('setting loop of length: ' + (this.loopEnd - this.loopStart));
       this.source.loop = true;
       this.source.loopStart = this.loopStart;
@@ -73,6 +72,16 @@ function Song(audioCtx, audioBuffer) {
     }
 
     this.source.connect(this.audioCtx.destination);
+  };
+
+  /**
+   * Changes the songs position, and stops and starts it again
+   *
+   * @param position the position to seek to
+   */
+  this.seek = function(position) {
+    this.stop();
+    this.play(position);
   };
 
   /**
@@ -89,6 +98,29 @@ function Song(audioCtx, audioBuffer) {
 
     this.source.stop();
     this.isPlaying = false;
+  };
+
+  /**
+   * Resets the songs position to 0, and removes the loop
+   * if sone exists
+   */
+  this.reset = function() {
+    this.position = 0;
+    this.looping = false;
+    this.loopStart = 0;
+    this.loopEnd = 0;
+  };
+
+  /**
+   * Starts a new loop from start to end
+   *
+   * @param start the start time, in seconds, of the loop
+   * @param end the end time, in seconds, of the loop
+   */
+  this.loop = function(start, end) {
+    this.looping = true;
+    this.loopStart = start;
+    this.loopEnd = end;
   };
 
   this.lastTimeStep = 0;

@@ -1,5 +1,5 @@
 
-describe('Test', function() {
+describe('Util', function() {
   it('should format time correctly1', function() {
     var seconds = 120;
     assert.equal('2:00', formatTime(seconds));
