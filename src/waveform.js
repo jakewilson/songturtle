@@ -8,6 +8,7 @@
 function Waveform(audioBuffer, length) {
   this.audioBuffer = audioBuffer;
   this.length = length;
+  this.maxData = 0;
 
   /**
    * Calculates the root mean square for [this.length] samples of the
@@ -20,6 +21,7 @@ function Waveform(audioBuffer, length) {
    *    3. These chunks are our waveform
    */
   this.rms = function() {
+    this.maxData = -Infinity;
     const songLength = this.audioBuffer.length;
     // the increment to sample the audio buffer at
     const inc = Math.floor(songLength / this.length);
@@ -40,8 +42,12 @@ function Waveform(audioBuffer, length) {
           meanSquare += (channelData[channel][j] * channelData[channel][j]);
         }
       }
+      const rmsVal = Math.sqrt(meanSquare / (inc * numChannels));
+      data[dataIdx++] = rmsVal;
 
-      data[dataIdx++] = Math.sqrt(meanSquare / (inc * numChannels));
+      // save the peak value for rendering
+      if (rmsVal > this.maxData)
+        this.maxData = rmsVal;
     }
 
     return data;

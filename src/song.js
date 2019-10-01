@@ -20,7 +20,7 @@ function Song(audioCtx, audioBuffer) {
    */
   this.timePlayed = 0;
 
-  this.waveformLength = 200;
+  this.waveformLength = 500;
 
   this.waveform = new Waveform(this.audioBuffer, this.waveformLength);
 
@@ -102,7 +102,7 @@ function Song(audioCtx, audioBuffer) {
 
   /**
    * Resets the songs position to 0, and removes the loop
-   * if sone exists
+   * if one exists
    */
   this.reset = function() {
     this.position = 0;

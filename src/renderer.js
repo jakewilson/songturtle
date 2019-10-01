@@ -13,6 +13,9 @@ function Renderer(canvas, song) {
   this.ctx = canvas.getContext('2d');
   this.song = song;
   this.waveform = song.waveform;
+  this.scale = (this.canvas.height / 2) / this.waveform.maxData;
+  this.barWidth = this.canvas.width / this.waveform.length;
+
 
   this.selectionBar = null;
 
@@ -94,12 +97,9 @@ function Renderer(canvas, song) {
     if (to === undefined || to === null)
       to = this.waveform.length;
 
-    const scale = this.canvas.height / 2;
-    const barWidth = this.canvas.width / this.waveform.length;
-
     this.ctx.fillStyle = color;
     for (var i = from; i < to; i++) {
-      this._drawBar(this.ctx, (i * barWidth), this.canvas.height / 2, barWidth, scale * this.waveform.data[i]);
+      this._drawBar(this.ctx, (i * this.barWidth), this.canvas.height / 2, this.barWidth, this.scale * this.waveform.data[i]);
     }
 
   }
