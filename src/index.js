@@ -151,8 +151,8 @@
     if (mouseIsDown && Date.now() - mouseDownTime > CLICK_TIME_MS) {
       // turn off the selection if the user is selecting a loop
       renderer.selectionBar = null;
-      renderer.loopStart = tempLoopStart;
-      renderer.loopEnd = selectionBar;
+      renderer.selectionStart = tempLoopStart;
+      renderer.selectionEnd = selectionBar;
 
       // allow the user to draw a loop if the song isn't playing
       // we check to make sure it's not playing, because if it is then
@@ -213,8 +213,10 @@
     } else { // the user dragged the mouse
       // if the user dragged the mouse to the left, we will switch
       // the start and end positions
-      const start = Math.min(renderer.loopStart, renderer.loopEnd);
-      const end   = Math.max(renderer.loopStart, renderer.loopEnd);
+      const start = Math.min(renderer.selectionStart, renderer.selectionEnd);
+      const end   = Math.max(renderer.selectionStart, renderer.selectionEnd);
+
+      renderer.selectionStart = null; renderer.selectionEnd = null;
 
       renderer.loopStart = start;
       renderer.loopEnd   = end;

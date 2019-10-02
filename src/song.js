@@ -140,8 +140,6 @@ function Song(audioCtx, audioBuffer) {
    * Should only be called by setInterval(). Responsible
    * for keeping track of how much time has passed in the song,
    * stopping the song if it's finished, and other song-related, time sensitive things
-   *
-   * @param song the context with which to reference variables
    */
   this.timeStep = function() {
     if (!this.isPlaying)

@@ -23,6 +23,9 @@ function Renderer(canvas, song) {
   this.loopStart = null;
   this.loopEnd = null;
 
+  this.selectionStart = null;
+  this.selectionEnd = null;
+
   /**
    * Draws the waveform
    *
@@ -47,7 +50,7 @@ function Renderer(canvas, song) {
 
     const progressBars = Math.ceil((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
 
-    if (renderer.song.looping === false) {
+    if (!renderer.song.looping) {
       // make it clear which part of the song the user is selecting
       if (renderer.selectionBar !== null) {
         // the x coordinate (in waveform "bar" units) of the mouse
@@ -63,14 +66,14 @@ function Renderer(canvas, song) {
       }
 
       // draw the selected loop
-      if (renderer.loopStart !== null && renderer.loopEnd !== null) {
-        const loopStart = Math.min(renderer.loopStart, renderer.loopEnd);
-        const loopEnd   = Math.max(renderer.loopStart, renderer.loopEnd);
+      if (renderer.selectionStart !== null && renderer.selectionEnd !== null) {
+        const loopStart = Math.min(renderer.selectionStart, renderer.selectionEnd);
+        const loopEnd   = Math.max(renderer.selectionStart, renderer.selectionEnd);
 
         renderer._drawBars(renderer.loopColor, loopStart, loopEnd + 1);
       }
-    } else { // the song is looping
-      // draw the selected loop
+    } else {
+      // draw the loop
       if (renderer.loopStart !== null && renderer.loopEnd !== null) {
         renderer._drawBars(renderer.waveformColor, 0, renderer.loopStart);
 
@@ -78,6 +81,14 @@ function Renderer(canvas, song) {
         renderer._drawBars(renderer.loopColor, progressBars, renderer.loopEnd);
 
         renderer._drawBars(renderer.waveformColor, renderer.loopEnd);
+      }
+
+      // draw the selected loop
+      if (renderer.selectionStart !== null && renderer.selectionEnd !== null) {
+        const loopStart = Math.min(renderer.selectionStart, renderer.selectionEnd);
+        const loopEnd   = Math.max(renderer.selectionStart, renderer.selectionEnd);
+
+        renderer._drawBars(renderer.loopColor, loopStart, loopEnd + 1);
       }
     }
   }
