@@ -198,6 +198,16 @@
       console.log(`clicked ${selection}`);
       // convert the selection bar into actual seconds, then jump to that time
       var offset = getSecondsFromSelectionBar(selection);
+
+      // if the song is looping, and the user clicks inside the loop,
+      // seek to that position in the loop. If the user clicks outside the loop,
+      // remove the loop and seek to that position
+      if (song.looping && (offset < song.loopStart || offset > song.loopEnd)) {
+        song.unloop();
+        renderer.loopStart = null;
+        renderer.loopEnd = null;
+      }
+
       song.seek(offset);
       updateClock(song);
     } else { // the user dragged the mouse

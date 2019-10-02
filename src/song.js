@@ -110,9 +110,7 @@ function Song(audioCtx, audioBuffer) {
    */
   this.reset = function() {
     this.position = 0;
-    this.looping = false;
-    this.loopStart = 0;
-    this.loopEnd = 0;
+    this.unloop();
   };
 
   /**
@@ -125,6 +123,15 @@ function Song(audioCtx, audioBuffer) {
     this.looping = true;
     this.loopStart = start;
     this.loopEnd = end;
+  };
+
+  /**
+   * Removes the loop from the song
+   */
+  this.unloop = function() {
+    this.looping = false;
+    this.loopStart = 0;
+    this.loopEnd = 0;
   };
 
   this.lastTimeStep = 0;
