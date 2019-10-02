@@ -15,11 +15,6 @@ function Song(audioCtx, audioBuffer) {
    */
   this.position = 0;
 
-  /**
-   * The amount of time the song has played for in ms
-   */
-  this.timePlayed = 0;
-
   this.waveformLength = 500;
 
   this.waveform = new Waveform(this.audioBuffer, this.waveformLength);
@@ -53,6 +48,10 @@ function Song(audioCtx, audioBuffer) {
     this.lastTimeStep = this.startTime;
     // start the song time step
     this.intervalId = setInterval(this.timeStep.bind(this), this.timeStepMs);
+
+    if (this.onStartCallback) {
+      this.onStartCallback();
+    }
   };
 
   /**
@@ -92,12 +91,17 @@ function Song(audioCtx, audioBuffer) {
       return;
 
     clearInterval(this.intervalId);
-    // move the position along however by however much
+
+    // move the position along by however much
     // time has passed since the last timestep
-    this.timeStep();
+    this.position += this.getCurrentTime() - this.lastTimeStep;
 
     this.source.stop();
     this.isPlaying = false;
+
+    if (this.onStopCallback) {
+      this.onStopCallback();
+    }
   };
 
   /**
@@ -136,8 +140,12 @@ function Song(audioCtx, audioBuffer) {
     if (!this.isPlaying)
       return;
 
-    this.timePlayed = this.getCurrentTime() - this.startTime;
     this.position += this.getCurrentTime() - this.lastTimeStep;
+
+    if (this.position > this.duration) {
+      this.stop();
+      this.reset();
+    }
 
     if (this.loop) {
       const loopStart = this.loopStart;
@@ -158,5 +166,23 @@ function Song(audioCtx, audioBuffer) {
    */
   this.getCurrentTime = function() {
     return this.audioCtx.currentTime;
+  };
+
+  this.onStartCallback = null;
+
+  /**
+   * Sets the onStart function to be called when the song is started
+   */
+  this.onStart = function(callback) {
+    this.onStartCallback = callback;
+  };
+
+  this.onStopCallback = null;
+
+  /**
+   * Sets the onStop function to be called when the song is stopped
+   */
+  this.onStop = function(callback) {
+    this.onStopCallback = callback;
   };
 }

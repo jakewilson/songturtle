@@ -15,6 +15,9 @@
     showElement(canvas);
 
     song = new Song(audioCtx, audioBuffer, canvas);
+    song.onStart(toggleButton);
+    song.onStop(toggleButton);
+
     renderer = new Renderer(canvas, song);
     renderer.drawWaveform();
 
@@ -45,7 +48,7 @@
 
     // make sure we don't play more than one song at the same time
     if (song) {
-      stopSong();
+      song.stop();
       song = null;
     }
 
@@ -83,42 +86,25 @@
         return;
 
       if (!song.isPlaying) {
-        playSong();
+        song.play();
       } else {
-        stopSong();
+        song.stop();
       }
   });
 
-  /**
-   * Plays the song, changes DOM elements, and starts some intervals
-   *
-   * @param offset [optional] the offset at which to play the song
-   */
-  function playSong(offset) {
-    if (song === null || renderer === null) {
-      console.log('tried to play the song but it or the renderer was null');
+  function toggleButton() {
+    if (!song)
       return;
+
+    if (song.isPlaying) {
+      playButton.innerHTML = "<span>Pause</span>";
+      drawInterval = setInterval(renderer.drawWaveform, 40, renderer);
+      clockInterval = setInterval(updateClock, 200, song);
+    } else {
+      playButton.innerHTML = "<span>Play</span>";
+      clearInterval(drawInterval);
+      clearInterval(clockInterval);
     }
-
-    playButton.innerHTML = "<span>Pause</span>";
-    song.play(offset);
-    drawInterval = setInterval(renderer.drawWaveform, 40, renderer);
-    clockInterval = setInterval(updateClock, 200, song);
-  }
-
-  /**
-   * Stops the song, changes DOM elements, and clears some intervals
-   */
-  function stopSong() {
-    if (song === null) {
-      console.log('tried to stop the song but it was null');
-      return;
-    }
-
-    playButton.innerHTML = "<span>Play</span>";
-    song.stop();
-    clearInterval(drawInterval);
-    clearInterval(clockInterval);
   }
 
   /*
@@ -204,7 +190,7 @@
     if (Date.now() - mouseDownTime <= CLICK_TIME_MS) {
       // the user clicked
       if (!song.isPlaying) {
-        playSong();
+        song.play();
         return;
       }
 
@@ -223,13 +209,13 @@
       renderer.loopStart = start;
       renderer.loopEnd   = end;
 
-      stopSong();
+      song.stop();
 
       const loopStartSeconds = Math.floor(getSecondsFromSelectionBar(start));
       const loopEndSeconds = Math.floor(getSecondsFromSelectionBar(end));
 
       song.loop(loopStartSeconds, loopEndSeconds);
-      playSong(song.loopStart);
+      song.play(song.loopStart);
     }
   });
 

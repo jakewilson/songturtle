@@ -115,9 +115,8 @@ describe('Song', function() {
       song.stop();
       assert(!song.isPlaying, 'song is playing after calling stop()');
 
-      // should be within ~2 ms of each other
       const expectedPos = source.stopTime - source.startTime;
-      assert(isWithinXMs(5, song.position, expectedPos), `time difference was greater than 5 ms: ${print_ea(expectedPos, song.position)}`);
+      assert(isWithinXMs(20, song.position, expectedPos), `time difference was greater than 20 ms: ${print_ea(expectedPos, song.position)}`);
       done();
     }, 3000);
   });
@@ -131,9 +130,8 @@ describe('Song', function() {
       song.stop();
       assert(!song.isPlaying, 'song is playing after calling stop()');
 
-      // should be within ~2 ms of each other
       const expectedPos = source.stopTime - source.startTime;
-      assert(isWithinXMs(5, song.position, expectedPos + offset), `time difference was greater than 5 ms: ${print_ea(expectedPos, song.position)}`);
+      assert(isWithinXMs(20, song.position, expectedPos + offset), `time difference was greater than 20 ms: ${print_ea(expectedPos + offset, song.position)}`);
       done();
     }, 3000);
   });
@@ -149,7 +147,19 @@ describe('Song', function() {
 
       // start at 9, play for 3 seconds should go 9 => 10/4 => 5 => 6
       const expectedPos = 6;
-      assert(isWithinXMs(5, song.position, expectedPos), `time difference was greater than 5 ms: ${print_ea(expectedPos, song.position)}`);
+      assert(isWithinXMs(20, song.position, expectedPos), `time difference was greater than 20 ms: ${print_ea(expectedPos, song.position)}`);
+      done();
+    }, 3000);
+  });
+
+  it('should stop automatically when it\'s over', (done) => {
+    song.play(59);
+    assert(song.isPlaying, 'song is not playing after calling play()');
+    assert(isWithinXMs(5, song.position, 59), `time difference was greater than 5 ms: ${print_ea(59, song.position)}`);
+    setTimeout(() => {
+      assert(!song.isPlaying, 'song is playing after reaching the end');
+
+      assert(isWithinXMs(5, song.position, 0), `time difference was greater than 5 ms: ${print_ea(0, song.position)}`);
       done();
     }, 3000);
   });
