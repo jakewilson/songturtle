@@ -45,7 +45,7 @@ function Renderer(canvas, song) {
     renderer.ctx.fillStyle = 'rgb(150, 150, 150)';
     renderer.ctx.fillRect(0, 0, renderer.canvas.width, renderer.canvas.height);
 
-    const progressBars = Math.floor((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
+    const progressBars = Math.ceil((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
 
     if (renderer.song.looping === false) {
       // make it clear which part of the song the user is selecting
@@ -74,13 +74,12 @@ function Renderer(canvas, song) {
       if (renderer.loopStart !== null && renderer.loopEnd !== null) {
         renderer._drawBars(renderer.waveformColor, 0, renderer.loopStart);
 
-        renderer._drawBars(renderer.loopProgressColor, renderer.loopStart, progressBars + 1);
-        renderer._drawBars(renderer.loopColor, progressBars + 1, renderer.loopEnd + 1);
+        renderer._drawBars(renderer.loopProgressColor, renderer.loopStart, progressBars);
+        renderer._drawBars(renderer.loopColor, progressBars, renderer.loopEnd);
 
-        renderer._drawBars(renderer.waveformColor, renderer.loopEnd + 1);
+        renderer._drawBars(renderer.waveformColor, renderer.loopEnd);
       }
     }
-
   }
 
   /**
@@ -101,7 +100,6 @@ function Renderer(canvas, song) {
     for (var i = from; i < to; i++) {
       this._drawBar(this.ctx, (i * this.barWidth), this.canvas.height / 2, this.barWidth, this.scale * this.waveform.data[i]);
     }
-
   }
 
   /**
