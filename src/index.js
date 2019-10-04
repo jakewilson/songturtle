@@ -82,18 +82,25 @@
 
 
   const playButton = document.querySelector('button');
-  playButton.addEventListener('click', function() {
-      // don't bother doing anything if we don't have a song picked yet
-      if (song == null)
-        return;
+  playButton.addEventListener('click', toggleSong);
 
-      if (!song.isPlaying) {
-        song.play();
-      } else {
-        song.stop();
-      }
-  });
+  function toggleSong() {
+    // don't bother doing anything if we don't have a song picked yet
+    if (song == null)
+      return;
 
+    if (!song.isPlaying) {
+      song.play();
+    } else {
+      song.stop();
+    }
+  }
+
+  /**
+   * Toggles the play button based on if the song is playing or not
+   * This will be called automatically by song, no need to manually call it
+   * Call toggleSong() instead
+   */
   function toggleButton() {
     if (!song)
       return;
@@ -289,4 +296,38 @@
 
     song.changePlayback(playbackInp.value);
   });
+
+  document.querySelector('body').onkeydown = function(e) {
+    if (!song)
+      return;
+
+    switch (e.key) {
+      case " ": {
+        e.preventDefault();
+        toggleSong();
+        break;
+      }
+
+      case "Backspace": {
+        e.preventDefault();
+        if (song.looping) {
+          song.stop();
+          song.reset();
+          if (renderer)
+            renderer.drawWaveform(renderer);
+        }
+        break;
+      }
+
+      case "ArrowLeft": {
+        e.preventDefault();
+        if (song.looping) {
+          song.seek(song.loopStart);
+        } else {
+          song.seek(0);
+        }
+        break;
+      }
+    }
+  };
 })();
