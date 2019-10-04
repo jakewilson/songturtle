@@ -1,6 +1,7 @@
 (function() {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext);
   const canvas = document.querySelector('canvas');
+  const playbackDiv = document.getElementById('playback-div');
 
   var song = null, renderer = null;
   var drawInterval = null, clockInterval = null;
@@ -13,6 +14,7 @@
     // hide the loading div and show the canvas
     hideElement('loadingDiv');
     showElement(canvas);
+    showElement(playbackDiv);
 
     song = new Song(audioCtx, audioBuffer, canvas);
     song.onStart(toggleButton);
@@ -195,7 +197,6 @@
       }
 
       var selection = getSelectionBar(e);
-      console.log(`clicked ${selection}`);
       // convert the selection bar into actual seconds, then jump to that time
       var offset = getSecondsFromSelectionBar(selection);
 
@@ -274,4 +275,18 @@
       y: mouseY * (canvas.height / boundingRect.height)
     };
   }
+
+  const playbackSpan = document.getElementById('playback-span');
+  const playbackInp = document.getElementById('playback');
+
+  playbackInp.addEventListener('input', function(e) {
+    playbackSpan.innerHTML = 'Playback: ' + playbackInp.value;
+  });
+
+  playbackInp.addEventListener('change', function(e) {
+    if (!song)
+      return;
+
+    song.changePlayback(playbackInp.value);
+  });
 })();

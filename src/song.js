@@ -4,6 +4,7 @@ function Song(audioCtx, audioBuffer) {
   this.audioBuffer = audioBuffer;
   this.duration = this.audioBuffer.duration;
   this.intervalId = 0;
+  this.playback = 1;
 
   /**
    * How often to call this.timeStep()
@@ -27,13 +28,25 @@ function Song(audioCtx, audioBuffer) {
   this.startTime = 0;
 
   /**
-   * Play the song
+   * plays the song and calls the onStartCallback if one exists
    * @param offset the position in seconds at which to start the song
    */
   this.play = function(offset) {
     if (this.isPlaying)
       return;
 
+    this._play(offset);
+
+    if (this.onStartCallback) {
+      this.onStartCallback();
+    }
+  };
+
+  /**
+   * Plays the song the song
+   * @param offset the position in seconds at which to start the song
+   */
+  this._play = function(offset) {
     if (offset === undefined || offset === null) {
       offset = this.position;
     } else {
@@ -47,11 +60,12 @@ function Song(audioCtx, audioBuffer) {
 
     this.lastTimeStep = this.startTime;
     // start the song time step
-    this.intervalId = setInterval(this.timeStep.bind(this), this.timeStepMs);
-
-    if (this.onStartCallback) {
-      this.onStartCallback();
-    }
+    if (this.playback != 1)
+      // if the playback is not 1, we want a timeout since we will constantly
+      // be stopping and starting the song every time
+      this.intervalId = setTimeout(this.timeStep.bind(this), this.timeStepMs);
+    else
+      this.intervalId = setInterval(this.timeStep.bind(this), this.timeStepMs);
   };
 
   /**
@@ -90,18 +104,22 @@ function Song(audioCtx, audioBuffer) {
     if (!this.isPlaying)
       return;
 
-    clearInterval(this.intervalId);
-
-    // move the position along by however much
-    // time has passed since the last timestep
-    this.position += this.getCurrentTime() - this.lastTimeStep;
-
-    this.source.stop();
-    this.isPlaying = false;
+    this._stop();
 
     if (this.onStopCallback) {
       this.onStopCallback();
     }
+  };
+
+  this._stop = function() {
+    clearInterval(this.intervalId);
+
+    // move the position along by however much
+    // time has passed since the last timestep
+    this.position += this.getDelta() * this.playback;
+
+    this.source.stop();
+    this.isPlaying = false;
   };
 
   /**
@@ -145,7 +163,7 @@ function Song(audioCtx, audioBuffer) {
     if (!this.isPlaying)
       return;
 
-    this.position += this.getCurrentTime() - this.lastTimeStep;
+    this.position += this.getDelta() * this.playback;
 
     if (this.position > this.duration) {
       this.stop();
@@ -163,6 +181,18 @@ function Song(audioCtx, audioBuffer) {
     }
 
     this.lastTimeStep = this.getCurrentTime();
+
+    if (this.playback != 1) {
+      this._stop();
+      this._play();
+    }
+  };
+
+  /**
+   * Returns the difference between the current time and the last time step
+   */
+  this.getDelta = function() {
+    return (this.getCurrentTime() - this.lastTimeStep);
   };
 
   /**
@@ -189,5 +219,19 @@ function Song(audioCtx, audioBuffer) {
    */
   this.onStop = function(callback) {
     this.onStopCallback = callback;
+  };
+
+  /**
+   * Changes the playback of the song and restarts it with the new speed
+   *
+   * @param playback the new song playback rate
+   */
+  this.changePlayback = function(playback) {
+    this.playback = playback;
+
+    if (this.isPlaying) {
+      this.stop();
+      this.play();
+    }
   };
 }
