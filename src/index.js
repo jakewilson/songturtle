@@ -13,8 +13,8 @@
   function songInit(audioBuffer) {
     // hide the loading div and show the canvas
     hideElement('loadingDiv');
-    showElement(canvas);
-    showElement(playbackDiv);
+    showElement('musicDiv');
+    showElement('playbackDiv');
 
     song = new Song(audioCtx, audioBuffer, canvas);
     song.onStart(toggleButton);
@@ -25,7 +25,6 @@
 
     var timeSpan = document.getElementById('timeSpan');
     timeSpan.innerHTML = `0:00/${formatTime(song.duration)}`;
-    showElement(timeSpan);
   }
 
   function songInitError(error) {
@@ -60,8 +59,8 @@
 
     // show the loading div and hide the canvas
     showElement('loadingDiv');
-    hideElement(canvas);
-    hideElement('timeSpan');
+    hideElement('musicDiv');
+    hideElement('playbackDiv');
 
     reader.addEventListener('load', onMp3Load);
 
@@ -77,11 +76,11 @@
     }
 
     reader.readAsArrayBuffer(file);
-    console.log(file.name);
+    document.getElementById('songName').innerHTML = file.name;
   }
 
 
-  const playButton = document.querySelector('button');
+  const playButton = document.getElementById('playButton');
   playButton.addEventListener('click', toggleSong);
 
   function toggleSong() {
@@ -106,11 +105,11 @@
       return;
 
     if (song.isPlaying) {
-      playButton.innerHTML = "<span>Pause</span>";
+      playButton.innerHTML = "<i class=\"fas fa-pause-circle\"></i>";
       drawInterval = setInterval(renderer.drawWaveform, 40, renderer);
       clockInterval = setInterval(updateClock, 200, song);
     } else {
-      playButton.innerHTML = "<span>Play</span>";
+      playButton.innerHTML = "<i class=\"fas fa-play-circle\"></i>";
       clearInterval(drawInterval);
       clearInterval(clockInterval);
     }
@@ -295,20 +294,6 @@
     };
   }
 
-  const playbackSpan = document.getElementById('playback-span');
-  const playbackInp = document.getElementById('playback');
-
-  playbackInp.addEventListener('input', function(e) {
-    playbackSpan.innerHTML = 'Playback: ' + playbackInp.value;
-  });
-
-  playbackInp.addEventListener('change', function(e) {
-    if (!song)
-      return;
-
-    song.changePlayback(playbackInp.value);
-  });
-
   // key commands
   document.querySelector('body').onkeydown = function(e) {
     if (!song)
@@ -342,4 +327,17 @@
       }
     }
   };
+
+  function changeSpeed(e) {
+    if (!song)
+      return;
+
+    song.changePlayback(e.target.value);
+  }
+
+  const playbackButtons = document.getElementsByClassName('playbackButton');
+  for (let i = 0; i < playbackButtons.length; i++) {
+    playbackButtons.item(i).addEventListener('click', changeSpeed);
+  }
+
 })();

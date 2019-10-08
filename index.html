@@ -3,17 +3,34 @@
   <meta charset="UTF-8">
   <title>Song Turtle</title>
   <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/all.min.css" />
+  <style>
+    .fileInp {
+      opacity: 0;
+      position: absolute;
+      z-index: -1;
+    }
+    label {
+      cursor: pointer;
+      border: 1px solid black;
+      border-radius: 5px;
+    }
+    canvas {
+      cursor: pointer;
+      border: 2px solid black;
+      border-radius: 5px;
+    }
+  </style>
 </head>
-<body>
-  <header>
-    <div class="navbar navbar-dark bg-dark shadow-sm">
-      <div class="container d-flex justify-content-between">
-        <span class="navbar-brand d-flex align-items-center">
-          Song Turtle
-        </span>
-      </div>
+<body class="d-flex flex-column h-100">
+  <nav class="navbar navbar-expand navbar-dark bg-success text-white">
+    <div class="container">
+      <h1 class="mb-0 h5 py-1">Song Turtle</h1>
+      <a class="text-white no-underline h2 mb-0" href="https://github.com/jakewilson/songturtle" title="view project on github">
+        <i class="fab fa-github"></i>
+      </a>
     </div>
-  </header>
+  </nav>
   <main role="main">
     <div class="container">
       <br />
@@ -21,9 +38,6 @@
         <div class="col-sm"></div>
         <div class="col-sm">
           <p>
-            Upload an audio file to play, loop, and slow it down. Click and drag on the waveform
-            to select a loop. Click away from the loop to remove it. Single click anywhere on the
-            waveform to seek.
           </p>
         </div>
         <div class="col-sm"></div>
@@ -38,40 +52,56 @@
         <div class="col-sm"></div>
       </div>
       <div class="row">
-        <div class="col-sm"></div>
-        <div class="col-sm">
-          <div class="custom-file">
-            <input type="file" class="custom-file-input" id="fileInput">
-            <label class="custom-file-label" for="fileInput">Upload an audio file</label>
+        <div class="col-sm-2"></div>
+        <div class="col-md">
+          <p class="text-center">
+            Upload an audio file to play, loop, and slow it down. Click and drag on the waveform
+            to select a loop. Click away from the loop to remove it. Single click anywhere on the
+            waveform to seek.
+          </p>
+          <div class="custom-file text-center">
+            <input type="file" class="fileInp" id="fileInput">
+            <label for="fileInput" class="pr-2 pl-2">Upload an audio file</label>
           </div>
         </div>
-        <div class="col-sm"></div>
+        <div class="col-sm-2"></div>
       </div>
       <br class="my-4">
       <div class="row">
-        <div class="col-sm"></div>
-        <div class="col-sm">
-              <i class="fas fa-play-circle"></i>
-          <button class="btn btn-primary" role="switch" aria-checked="false">
-              <span>Play</span>
-          </button>
+        <div class="col-sm-1"></div>
+        <div class="col-sm-1" id="playbackDiv" style="display: none">
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.25">.25x</button>
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.5">.50x</button>
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.75">.75x</button>
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1">1x</button>
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.25">1.25x</button>
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.50">1.5x</button>
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.75">1.75x</button>
+            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="2">2x</button>
         </div>
-        <div class="col-sm"></div>
-      </div>
-      <div class="row">
-        <div class="col-sm-2"></div>
         <div class="col-md">
           <div class="text-center" id="loadingDiv" style="display: none">
             <div class="spinner-border" role="status">
               <span class="sr-only">Loading...</span>
             </div>
           </div>
-          <span id="timeSpan" style="display: none">0:00/0:00</span>
-          <canvas class="w-100 h-25" width="600"></canvas>
-          <div id="playback-div" style='display:none'>
-            <input id="playback" type="range" value="1" min="0.25" max="2" step="0.05" />
-            <span id="playback-span">Playback: 1</span>
+          <div id="musicDiv" style="display: none" class="text-center">
+            <span id="songName">song name</span>
+            <hr />
+            <span id="timeSpan">0:00/0:00</span>
+            <br />
+            <canvas class="w-100 h-25" width="600"></canvas>
+            <br />
+            <button class="btn btn-success w-100" id="playButton">
+                <i class="fas fa-play-circle"></i>
+            </button>
           </div>
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-md">
         </div>
         <div class="col-sm-2"></div>
       </div>
