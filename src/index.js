@@ -148,6 +148,9 @@
   const CLICK_TIME_MS = 300;
 
   canvas.addEventListener('mousemove', function(e) {
+    if (!song)
+      return;
+
     var selectionBar = getSelectionBar(e);
     if (song.isPlaying && renderer !== null) {
       renderer.selectionBar = selectionBar;
@@ -173,6 +176,9 @@
   });
 
   canvas.addEventListener('mouseleave', function(e) {
+    if (!song)
+      return;
+
     if (renderer)
       renderer.selectionBar = null;
 
@@ -185,6 +191,9 @@
   var tempLoopStart = null;
 
   canvas.addEventListener('mousedown', function(e) {
+    if (!song)
+      return;
+
     mouseIsDown = true;
     mouseDownTime = Date.now();
 
@@ -195,6 +204,9 @@
   });
 
   canvas.addEventListener('mouseup', function(e) {
+    if (!song)
+      return;
+
     mouseIsDown = false;
     if (Date.now() - mouseDownTime <= CLICK_TIME_MS) {
       // the user clicked
@@ -297,6 +309,7 @@
     song.changePlayback(playbackInp.value);
   });
 
+  // key commands
   document.querySelector('body').onkeydown = function(e) {
     if (!song)
       return;
@@ -311,8 +324,7 @@
       case "Backspace": {
         e.preventDefault();
         if (song.looping) {
-          song.stop();
-          song.reset();
+          song.unloop();
           if (renderer)
             renderer.drawWaveform(renderer);
         }

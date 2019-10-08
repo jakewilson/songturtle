@@ -2,20 +2,20 @@
  * An object to render a waveform
  */
 function Renderer(canvas, song) {
-  this.waveformColor         = 'rgb(230, 230, 230)';
-  this.waveformProgressColor = 'rgb(255, 127, 0)';
-  this.waveformSelectedColor = 'rgb(247, 110, 110)';
+  this.waveformColor         = '#000000';
+  this.waveformProgressColor = '#ef8a17';
+  this.waveformSelectedColor = '#ef2917';
 
-  this.loopColor         = 'rgb(0, 255, 150)';
-  this.loopProgressColor = 'rgb(100, 0, 200)';
+  this.loopColor         = '#008148';
+  this.loopProgressColor = '#c6c013';
 
   this.canvas = canvas;
   this.ctx = canvas.getContext('2d');
   this.song = song;
   this.waveform = song.waveform;
+  this.padding = 1;
   this.scale = (this.canvas.height / 2) / this.waveform.maxData;
-  this.barWidth = this.canvas.width / this.waveform.length;
-
+  this.barWidth = (this.canvas.width / this.waveform.length) - this.padding;
 
   this.selectionBar = null;
 
@@ -45,7 +45,7 @@ function Renderer(canvas, song) {
     renderer.ctx.clearRect(0, 0, renderer.canvas.width, renderer.canvas.height);
 
     // draw background
-    renderer.ctx.fillStyle = 'rgb(150, 150, 150)';
+    renderer.ctx.fillStyle = '#ffffff';
     renderer.ctx.fillRect(0, 0, renderer.canvas.width, renderer.canvas.height);
 
     const progressBars = Math.ceil((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
@@ -109,7 +109,7 @@ function Renderer(canvas, song) {
 
     this.ctx.fillStyle = color;
     for (var i = from; i < to; i++) {
-      this._drawBar(this.ctx, (i * this.barWidth), this.canvas.height / 2, this.barWidth, this.scale * this.waveform.data[i]);
+      this._drawBar(this.ctx, (i * this.barWidth) + (i * this.padding), this.canvas.height / 2, this.barWidth, this.scale * this.waveform.data[i]);
     }
   }
 
@@ -118,7 +118,7 @@ function Renderer(canvas, song) {
    * in the opposite direction
    */
   this._drawBar = function(context, x, y, width, height) {
-    context.fillRect(x, y, width, height);
-    context.fillRect(x, y, width, -height);
+    context.fillRect(x + this.padding, y, width, height);
+    context.fillRect(x + this.padding, y, width, -height);
   };
 }

@@ -16,7 +16,7 @@ function Song(audioCtx, audioBuffer) {
    */
   this.position = 0;
 
-  this.waveformLength = 500;
+  this.waveformLength = 200;
 
   this.waveform = new Waveform(this.audioBuffer, this.waveformLength);
 
@@ -150,6 +150,11 @@ function Song(audioCtx, audioBuffer) {
     this.looping = false;
     this.loopStart = 0;
     this.loopEnd = 0;
+
+    if (this.isPlaying) {
+      this._stop();
+      this._play();
+    }
   };
 
   this.lastTimeStep = 0;
@@ -170,7 +175,7 @@ function Song(audioCtx, audioBuffer) {
       this.reset();
     }
 
-    if (this.loop) {
+    if (this.looping) {
       const loopStart = this.loopStart;
       const loopEnd = this.loopEnd;
       const loopDuration = loopEnd - loopStart;

@@ -5,58 +5,77 @@
   <link rel="stylesheet" href="css/bootstrap.min.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col-sm"></div>
-      <div class="col-sm">
-        <h1>Upload an mp3 file</h1>
+  <header>
+    <div class="navbar navbar-dark bg-dark shadow-sm">
+      <div class="container d-flex justify-content-between">
+        <span class="navbar-brand d-flex align-items-center">
+          Song Turtle
+        </span>
       </div>
-      <div class="col-sm"></div>
     </div>
-    <div class="row">
-      <div class="col-sm"></div>
-      <div class="col-sm">
-        <div class="alert alert-danger" role="alert" id="errorDiv" style='display: none'>
-          Wrong File Error
+  </header>
+  <main role="main">
+    <div class="container">
+      <br />
+      <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm">
+          <p>
+            Upload an audio file to play, loop, and slow it down. Click and drag on the waveform
+            to select a loop. Click away from the loop to remove it. Single click anywhere on the
+            waveform to seek.
+          </p>
         </div>
+        <div class="col-sm"></div>
       </div>
-      <div class="col-sm"></div>
-    </div>
-    <div class="row">
-      <div class="col-sm"></div>
-      <div class="col-sm">
-        <input id="fileInput" type="file" />
-      </div>
-      <div class="col-sm"></div>
-    </div>
-    <hr class="my-4">
-    <div class="row">
-      <div class="col-sm"></div>
-      <div class="col-sm">
-          <button class="btn btn-primary" data-playing="false" role="switch" aria-checked="false">
-              <span>Play</span>
-          </button>
-        <audio type="audio/mpeg"></audio>
-      </div>
-      <div class="col-sm"></div>
-    </div>
-    <div class="row">
-      <div class="col-sm-2"></div>
-      <div class="col-md">
-        <div class="text-center" id="loadingDiv" style="display: none">
-          <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
+      <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm">
+          <div class="alert alert-danger" role="alert" id="errorDiv" style='display: none'>
+            Wrong File Error
           </div>
         </div>
-        <span id="timeSpan" style="display: none">0:00/0:00</span>
-        <canvas class="w-100 h-25" style="display:none"></canvas>
-        <div id="playback-div" style='display:none'>
-          <input id="playback" type="range" value="1" min="0.25" max="2" step="0.05" />
-          <span id="playback-span">Playback: 1</span>
-        </div>
+        <div class="col-sm"></div>
       </div>
-      <div class="col-sm-2"></div>
+      <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm">
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" id="fileInput">
+            <label class="custom-file-label" for="fileInput">Upload an audio file</label>
+          </div>
+        </div>
+        <div class="col-sm"></div>
+      </div>
+      <br class="my-4">
+      <div class="row">
+        <div class="col-sm"></div>
+        <div class="col-sm">
+              <i class="fas fa-play-circle"></i>
+          <button class="btn btn-primary" role="switch" aria-checked="false">
+              <span>Play</span>
+          </button>
+        </div>
+        <div class="col-sm"></div>
+      </div>
+      <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-md">
+          <div class="text-center" id="loadingDiv" style="display: none">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+          <span id="timeSpan" style="display: none">0:00/0:00</span>
+          <canvas class="w-100 h-25" width="600"></canvas>
+          <div id="playback-div" style='display:none'>
+            <input id="playback" type="range" value="1" min="0.25" max="2" step="0.05" />
+            <span id="playback-span">Playback: 1</span>
+          </div>
+        </div>
+        <div class="col-sm-2"></div>
+      </div>
+      <script src="build/songturtle.min.js"></script>
     </div>
-    <script src="build/songturtle.min.js"></script>
-  </div>
+  </main>
 </body>
