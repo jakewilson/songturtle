@@ -220,9 +220,7 @@
       // seek to that position in the loop. If the user clicks outside the loop,
       // remove the loop and seek to that position
       if (song.looping && (offset < song.loopStart || offset > song.loopEnd)) {
-        song.unloop();
-        renderer.loopStart = null;
-        renderer.loopEnd = null;
+        removeLoop();
       }
 
       song.seek(offset);
@@ -232,21 +230,40 @@
       // the start and end positions
       const start = Math.min(renderer.selectionStart, renderer.selectionEnd);
       const end   = Math.max(renderer.selectionStart, renderer.selectionEnd);
-
-      renderer.selectionStart = null; renderer.selectionEnd = null;
-
-      renderer.loopStart = start;
-      renderer.loopEnd   = end;
-
-      song.stop();
-
-      const loopStartSeconds = Math.floor(getSecondsFromSelectionBar(start));
-      const loopEndSeconds = Math.floor(getSecondsFromSelectionBar(end));
-
-      song.loop(loopStartSeconds, loopEndSeconds);
-      song.play(song.loopStart);
+      createLoop(start, end);
     }
   });
+
+  function createLoop(startBar, endBar) {
+    renderer.selectionStart = null; renderer.selectionEnd = null;
+
+    renderer.loopStart = startBar;
+    renderer.loopEnd   = endBar;
+
+    song.stop();
+
+    const loopStartSeconds = Math.floor(getSecondsFromSelectionBar(startBar));
+    const loopEndSeconds = Math.floor(getSecondsFromSelectionBar(endBar));
+
+    song.loop(loopStartSeconds, loopEndSeconds);
+    song.play(song.loopStart);
+
+    document.getElementById('loopStart').innerHTML = formatTime(loopStartSeconds);
+    document.getElementById('loopEnd').innerHTML = formatTime(loopEndSeconds);
+    showElement('loopDiv');
+  }
+
+  function removeLoop() {
+    if (!song)
+      return;
+
+    if (song.looping) {
+      song.unloop();
+      renderer.loopStart = null;
+      renderer.loopEnd = null;
+      hideElement('loopDiv');
+    }
+  }
 
   /**
    * Given a canvas selectionBar, return the number of
@@ -257,6 +274,16 @@
    */
   function getSecondsFromSelectionBar(selectionBar) {
     return selectionBar * (song.duration / song.waveform.length);
+  }
+
+  /**
+   * Given the seconds, return the corresponding canvas waveform bar
+   *
+   * @param seconds the seconds
+   * @return the waveform bar number on the canvas
+   */
+  function getSelectionBarFromSeconds(seconds) {
+    return seconds * (song.waveform.length / song.duration);
   }
 
   /**
@@ -306,11 +333,9 @@
 
       case "Backspace": {
         e.preventDefault();
-        if (song.looping) {
-          song.unloop();
-          if (renderer)
-            renderer.drawWaveform(renderer);
-        }
+        removeLoop();
+        if (renderer)
+          renderer.drawWaveform(renderer);
         break;
       }
 
