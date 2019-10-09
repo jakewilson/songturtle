@@ -78,7 +78,6 @@ function Song(audioCtx, audioBuffer) {
     this.source.buffer = this.audioBuffer;
 
     if (this.looping) {
-      console.log('setting loop of length: ' + (this.loopEnd - this.loopStart));
       this.source.loop = true;
       this.source.loopStart = this.loopStart;
       this.source.loopEnd = this.loopEnd;
@@ -93,8 +92,26 @@ function Song(audioCtx, audioBuffer) {
    * @param position the position to seek to
    */
   this.seek = function(position) {
-    this.stop();
-    this.play(position);
+    if (position < 0)
+      position = 0;
+
+    if (this.looping) {
+      if (position > this.loopEnd) {
+        position = this.loopStart + (position - this.loopEnd);
+      } else if (position < this.loopStart) {
+        position = this.loopStart;
+      }
+    }
+
+    if (position > this.duration)
+      position = this.duration;
+
+    this.position = position;
+
+    if (this.isPlaying) {
+      this._stop();
+      this._play();
+    }
   };
 
   /**
@@ -178,7 +195,6 @@ function Song(audioCtx, audioBuffer) {
     if (this.looping) {
       const loopStart = this.loopStart;
       const loopEnd = this.loopEnd;
-      const loopDuration = loopEnd - loopStart;
 
       if (this.position >= loopEnd) {
         this.position = loopStart + (this.position - loopEnd);

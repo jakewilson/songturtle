@@ -59,8 +59,6 @@
 
     // show the loading div and hide the canvas
     showElement('loadingDiv');
-    hideElement('musicDiv');
-    hideElement('playbackDiv');
 
     reader.addEventListener('load', onMp3Load);
 
@@ -318,26 +316,70 @@
 
       case "ArrowLeft": {
         e.preventDefault();
-        if (song.looping) {
-          song.seek(song.loopStart);
-        } else {
-          song.seek(0);
+        song.seek(song.position - 5);
+        break;
+      }
+
+      case "ArrowRight": {
+        e.preventDefault();
+        song.seek(song.position + 5);
+        break;
+      }
+
+      case "ArrowUp": {
+        e.preventDefault();
+        if (buttonClickedIdx > 0) {
+          let elem = {
+            target: playbackButtons.item(buttonClickedIdx - 1)
+          };
+          playbackButtonClick(elem);
+        }
+        break;
+      }
+
+      case "ArrowDown": {
+        e.preventDefault();
+        if (buttonClickedIdx < playbackButtons.length - 1) {
+          let elem = {
+            target: playbackButtons.item(buttonClickedIdx + 1)
+          };
+          playbackButtonClick(elem);
         }
         break;
       }
     }
   };
 
-  function changeSpeed(e) {
+  const playbackButtons = document.getElementsByClassName('playbackButton');
+  let buttonClickedIdx = 3; // index of 1x button
+
+  function playbackButtonClick(e) {
     if (!song)
       return;
 
-    song.changePlayback(e.target.value);
+    if (buttonClickedIdx > -1 && buttonClickedIdx < playbackButtons.length) {
+      let item = playbackButtons.item(buttonClickedIdx);
+      item.classList.remove('btn-warning');
+      item.classList.add('btn-success');
+    }
+    // change the selected button to yellow color
+    let elem = e.target;
+    elem.classList.remove('btn-success');
+    elem.classList.add('btn-warning');
+    song.changePlayback(elem.value);
+
+    // remove the yellow from whichever button had it and re-add the green
+    for (let i = 0; i < playbackButtons.length; i++) {
+      let item = playbackButtons.item(i);
+      if (item.classList.contains('btn-warning')) {
+        buttonClickedIdx = i;
+      }
+    }
+
   }
 
-  const playbackButtons = document.getElementsByClassName('playbackButton');
   for (let i = 0; i < playbackButtons.length; i++) {
-    playbackButtons.item(i).addEventListener('click', changeSpeed);
+    playbackButtons.item(i).addEventListener('click', playbackButtonClick);
   }
 
 })();

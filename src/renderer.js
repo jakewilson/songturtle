@@ -14,7 +14,7 @@ function Renderer(canvas, song) {
   this.song = song;
   this.waveform = song.waveform;
   this.padding = 1;
-  this.scale = (this.canvas.height / 2) / this.waveform.maxData;
+  this.scale = ((this.canvas.height / 2) - 1) / this.waveform.maxData;
   this.barWidth = (this.canvas.width / this.waveform.length) - this.padding;
 
   this.selectionBar = null;

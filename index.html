@@ -23,7 +23,7 @@
   </style>
 </head>
 <body class="d-flex flex-column h-100">
-  <nav class="navbar navbar-expand navbar-dark bg-success text-white">
+  <nav class="navbar navbar-expand navbar-dark bg-success text-white shadow-sm">
     <div class="container">
       <h1 class="mb-0 h5 py-1">Song Turtle</h1>
       <a class="text-white no-underline h2 mb-0" href="https://github.com/jakewilson/songturtle" title="view project on github">
@@ -54,12 +54,12 @@
       <div class="row">
         <div class="col-sm-2"></div>
         <div class="col-md">
-          <p class="text-center">
+          <p class="text-left">
             Upload an audio file to play, loop, and slow it down. Click and drag on the waveform
             to select a loop. Click away from the loop to remove it. Single click anywhere on the
             waveform to seek.
           </p>
-          <div class="custom-file text-center">
+          <div class="custom-file text-left">
             <input type="file" class="fileInp" id="fileInput">
             <label for="fileInput" class="pr-2 pl-2">Upload an audio file</label>
           </div>
@@ -73,7 +73,7 @@
             <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.25">.25x</button>
             <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.5">.50x</button>
             <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.75">.75x</button>
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1">1x</button>
+            <button class="btn btn-warning w-100 mb-1 mt-1 playbackButton" value="1">1x</button>
             <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.25">1.25x</button>
             <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.50">1.5x</button>
             <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.75">1.75x</button>
@@ -85,7 +85,7 @@
               <span class="sr-only">Loading...</span>
             </div>
           </div>
-          <div id="musicDiv" style="display: none" class="text-center">
+          <div id="musicDiv" style="display: none" class="text-left">
             <span id="songName">song name</span>
             <hr />
             <span id="timeSpan">0:00/0:00</span>
