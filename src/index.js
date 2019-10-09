@@ -74,7 +74,7 @@
     }
 
     reader.readAsArrayBuffer(file);
-    document.getElementById('songName').innerHTML = file.name;
+    document.getElementById('songName').innerHTML = `<strong>${file.name}</strong>`;
   }
 
 
@@ -90,6 +90,11 @@
       song.play();
     } else {
       song.stop();
+      if (loopInterval !== -1) {
+        clearInterval(loopInterval);
+        loopInterval = -1;
+        createLoop(loopStartSeconds, song.position);
+      }
     }
   }
 
@@ -230,26 +235,29 @@
       // the start and end positions
       const start = Math.min(renderer.selectionStart, renderer.selectionEnd);
       const end   = Math.max(renderer.selectionStart, renderer.selectionEnd);
-      createLoop(start, end);
+      createLoop(getSecondsFromSelectionBar(start), getSecondsFromSelectionBar(end));
     }
   });
 
-  function createLoop(startBar, endBar) {
+  /**
+   * Creates a song loop and sets the renderer loop and page loop info accordingly
+   *
+   * @param startSeconds the loopStart in seconds
+   * @param endSeconds the loopEnd in seconds
+   */
+  function createLoop(startSeconds, endSeconds) {
     renderer.selectionStart = null; renderer.selectionEnd = null;
 
-    renderer.loopStart = startBar;
-    renderer.loopEnd   = endBar;
+    renderer.loopStart = getSelectionBarFromSeconds(startSeconds);
+    renderer.loopEnd   = getSelectionBarFromSeconds(endSeconds);
 
     song.stop();
 
-    const loopStartSeconds = Math.floor(getSecondsFromSelectionBar(startBar));
-    const loopEndSeconds = Math.floor(getSecondsFromSelectionBar(endBar));
-
-    song.loop(loopStartSeconds, loopEndSeconds);
+    song.loop(startSeconds, endSeconds);
     song.play(song.loopStart);
 
-    document.getElementById('loopStart').innerHTML = formatTime(loopStartSeconds);
-    document.getElementById('loopEnd').innerHTML = formatTime(loopEndSeconds);
+    document.getElementById('loopStart').innerHTML = formatTime(startSeconds);
+    document.getElementById('loopEnd').innerHTML = formatTime(endSeconds);
     showElement('loopDiv');
   }
 
@@ -283,7 +291,7 @@
    * @return the waveform bar number on the canvas
    */
   function getSelectionBarFromSeconds(seconds) {
-    return seconds * (song.waveform.length / song.duration);
+    return Math.floor(seconds * (song.waveform.length / song.duration));
   }
 
   /**
@@ -294,6 +302,15 @@
    */
   function getSelectionBar(e) {
     return Math.floor(mousePosToCanvasPos(e.clientX, e.clientY, canvas).x * (song.waveform.length / canvas.width));
+  }
+
+  var loopInterval = -1;
+  var loopStartSeconds;
+  var loopEndSeconds;
+
+  function customLoop(song) {
+    renderer.selectionEnd = getSelectionBarFromSeconds(song.position);
+    loopEndSeconds = song.position;
   }
 
   /**
@@ -369,6 +386,22 @@
             target: playbackButtons.item(buttonClickedIdx + 1)
           };
           playbackButtonClick(elem);
+        }
+        break;
+      }
+
+      case "l": {
+        if (song.isPlaying && !song.looping) {
+          if (loopInterval === -1) {
+            loopStartSeconds = song.position;
+            renderer.selectionStart = getSelectionBarFromSeconds(song.position);
+            loopInterval = setInterval(customLoop, 20, song);
+          } else if (loopInterval !== -1) {
+            loopEndSeconds = song.position;
+            clearInterval(loopInterval);
+            loopInterval = -1;
+            createLoop(loopStartSeconds, loopEndSeconds);
+          }
         }
         break;
       }
