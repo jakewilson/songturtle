@@ -63,17 +63,6 @@
 
     reader.addEventListener('load', onMp3Load);
 
-    // show an error if the file is not an mp3
-    const errorDiv = document.getElementById('errorDiv');
-    if (file.name.match(/\.mp3$/) == null) {
-      showElement(errorDiv);
-      errorDiv.innerHTML = file.name + ' is not an mp3 file.';
-      hideElement('loadingDiv');
-      return;
-    } else {
-      hideElement(errorDiv);
-    }
-
     reader.readAsArrayBuffer(file);
     document.getElementById('songName').innerHTML = `<strong>${file.name}</strong>`;
   }
