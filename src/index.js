@@ -15,6 +15,7 @@
     hideElement('loadingDiv');
     showElement('musicDiv');
     showElement('playbackDiv');
+    showElement('accordion');
 
     song = new Song(audioCtx, audioBuffer, canvas);
     song.onStart(toggleButton);
