@@ -48,6 +48,8 @@
     if (files.length === 0)
       return;
 
+    hideElement('errorDiv');
+
     // make sure we don't play more than one song at the same time
     if (song) {
       song.stop();
