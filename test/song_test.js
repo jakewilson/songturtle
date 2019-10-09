@@ -139,20 +139,35 @@ describe('Song', function() {
   it('should play loops properly', (done) => {
     song.loop(4, 10);
     song.play(9);
+    const startTime = Date.now();
     setTimeout(() => {
+      const delta = Date.now() - startTime;
       assert(song.isPlaying, 'song is not playing after calling play()');
 
       song.stop();
       assert(!song.isPlaying, 'song is playing after calling stop()');
 
       // start at 9, play for 3 seconds should go 9 => 10/4 => 5 => 6
-      const expectedPos = 6;
+      const expectedPos = 6 + (delta - 3000)/1000;
       assert(isWithinXMs(20, song.position, expectedPos), `time difference was greater than 20 ms: ${print_ea(expectedPos, song.position)}`);
       done();
     }, 3000);
   });
 
   it('should stop automatically when it\'s over', (done) => {
+    song.play(59);
+    assert(song.isPlaying, 'song is not playing after calling play()');
+    assert(isWithinXMs(5, song.position, 59), `time difference was greater than 5 ms: ${print_ea(59, song.position)}`);
+    setTimeout(() => {
+      assert(!song.isPlaying, 'song is playing after reaching the end');
+
+      assert(isWithinXMs(5, song.position, 0), `time difference was greater than 5 ms: ${print_ea(0, song.position)}`);
+      done();
+    }, 3000);
+  });
+
+  it('should stop automatically when it\'s over with changed playback', (done) => {
+    song.changePlayback(0.5);
     song.play(59);
     assert(song.isPlaying, 'song is not playing after calling play()');
     assert(isWithinXMs(5, song.position, 59), `time difference was greater than 5 ms: ${print_ea(59, song.position)}`);

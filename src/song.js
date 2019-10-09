@@ -190,6 +190,7 @@ function Song(audioCtx, audioBuffer) {
     if (this.position > this.duration) {
       this.stop();
       this.reset();
+      return;
     }
 
     if (this.looping) {
