@@ -6,8 +6,10 @@
   var song = null, renderer = null;
   var drawInterval = null, clockInterval = null;
 
-  function onMp3Load(e) {
-    audioCtx.decodeAudioData(e.target.result, songInit, songInitError);
+  var songName = "";
+
+  function onMp3Load(arrayBuffer) {
+    audioCtx.decodeAudioData(arrayBuffer, songInit, songInitError);
   }
 
   function songInit(audioBuffer) {
@@ -26,6 +28,7 @@
 
     var timeSpan = document.getElementById('timeSpan');
     timeSpan.innerHTML = `0:00/${formatTime(song.duration)}`;
+    document.getElementById('songName').innerHTML = `<strong>${songName}</strong>`;
   }
 
   function songInitError(error) {
@@ -63,10 +66,12 @@
     // show the loading div and hide the canvas
     showElement('loadingDiv');
 
-    reader.addEventListener('load', onMp3Load);
+    reader.addEventListener('load', (e) => {
+      onMp3Load(e.target.result);
+    });
 
     reader.readAsArrayBuffer(file);
-    document.getElementById('songName').innerHTML = `<strong>${file.name}</strong>`;
+    songName = file.name;
   }
 
 
@@ -75,7 +80,7 @@
 
   function toggleSong() {
     // don't bother doing anything if we don't have a song picked yet
-    if (song == null)
+    if (!song)
       return;
 
     if (!song.isPlaying) {
@@ -432,4 +437,14 @@
     playbackButtons.item(i).addEventListener('click', playbackButtonClick);
   }
 
+  (function() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'audio/songturtle.mp3', true);
+    songName = 'songturtle.mp3';
+    xhr.onload = function() {
+      onMp3Load(xhr.response);
+    };
+    xhr.responseType = 'arraybuffer';
+    xhr.send();
+  })();
 })();
