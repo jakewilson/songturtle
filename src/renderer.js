@@ -28,69 +28,66 @@ function Renderer(canvas, song) {
 
   /**
    * Draws the waveform
-   *
-   * @param renderer [optional] used for when this function is called on an interval, this
-   *        will be the context, since `this` cannot be used. Defaults to `this`
    */
-  this.drawWaveform = function(renderer) {
-    renderer = renderer || this;
-
-    if (renderer.canvas == null || renderer.song == null || renderer.waveform == null) {
+  this.drawWaveform = function() {
+    if (this.canvas == null || this.song == null || this.waveform == null) {
       console.log('canvas, song, or waveform was null; doing nothing.');
       return;
     }
 
-    const progress = renderer.song.position;
+    const progress = this.song.position;
 
-    renderer.ctx.clearRect(0, 0, renderer.canvas.width, renderer.canvas.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // draw background
-    renderer.ctx.fillStyle = '#ffffff';
-    renderer.ctx.fillRect(0, 0, renderer.canvas.width, renderer.canvas.height);
+    this.ctx.fillStyle = '#ffffff';
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const progressBars = Math.ceil((renderer.waveform.length / renderer.waveform.audioBuffer.duration) * progress);
+    const progressBars = Math.ceil((this.waveform.length / this.waveform.audioBuffer.duration) * progress);
 
-    if (!renderer.song.looping) {
+    if (!this.song.looping) {
       // make it clear which part of the song the user is selecting
-      if (renderer.selectionBar !== null) {
+      if (this.selectionBar !== null) {
         // the x coordinate (in waveform "bar" units) of the mouse
-        const min = Math.min(renderer.selectionBar, progressBars);
-        const max = (min === renderer.selectionBar) ? progressBars : renderer.selectionBar;
+        const min = Math.min(this.selectionBar, progressBars);
+        const max = (min === this.selectionBar) ? progressBars : this.selectionBar;
 
-        renderer._drawBars(renderer.waveformProgressColor, 0, min);
-        renderer._drawBars(renderer.waveformSelectedColor, min, max);
-        renderer._drawBars(renderer.waveformColor, max);
+        this._drawBars(this.waveformProgressColor, 0, min);
+        this._drawBars(this.waveformSelectedColor, min, max);
+        this._drawBars(this.waveformColor, max);
       } else {
-        renderer._drawBars(renderer.waveformProgressColor, 0, progressBars);
-        renderer._drawBars(renderer.waveformColor, progressBars);
+        this._drawBars(this.waveformProgressColor, 0, progressBars);
+        this._drawBars(this.waveformColor, progressBars);
       }
 
       // draw the selected loop
-      if (renderer.selectionStart !== null && renderer.selectionEnd !== null) {
-        const loopStart = Math.min(renderer.selectionStart, renderer.selectionEnd);
-        const loopEnd   = Math.max(renderer.selectionStart, renderer.selectionEnd);
+      if (this.selectionStart !== null && this.selectionEnd !== null) {
+        const loopStart = Math.min(this.selectionStart, this.selectionEnd);
+        const loopEnd   = Math.max(this.selectionStart, this.selectionEnd);
 
-        renderer._drawBars(renderer.loopColor, loopStart, loopEnd + 1);
+        this._drawBars(this.loopColor, loopStart, loopEnd + 1);
       }
     } else {
       // draw the loop
-      if (renderer.loopStart !== null && renderer.loopEnd !== null) {
-        renderer._drawBars(renderer.waveformColor, 0, renderer.loopStart);
+      if (this.loopStart !== null && this.loopEnd !== null) {
+        this._drawBars(this.waveformColor, 0, this.loopStart);
 
-        renderer._drawBars(renderer.loopProgressColor, renderer.loopStart, progressBars);
-        renderer._drawBars(renderer.loopColor, progressBars, renderer.loopEnd);
+        this._drawBars(this.loopProgressColor, this.loopStart, progressBars);
+        this._drawBars(this.loopColor, progressBars, this.loopEnd);
 
-        renderer._drawBars(renderer.waveformColor, renderer.loopEnd);
+        this._drawBars(this.waveformColor, this.loopEnd);
       }
 
       // draw the selected loop
-      if (renderer.selectionStart !== null && renderer.selectionEnd !== null) {
-        const loopStart = Math.min(renderer.selectionStart, renderer.selectionEnd);
-        const loopEnd   = Math.max(renderer.selectionStart, renderer.selectionEnd);
+      if (this.selectionStart !== null && this.selectionEnd !== null) {
+        const loopStart = Math.min(this.selectionStart, this.selectionEnd);
+        const loopEnd   = Math.max(this.selectionStart, this.selectionEnd);
 
-        renderer._drawBars(renderer.loopColor, loopStart, loopEnd + 1);
+        this._drawBars(this.loopColor, loopStart, loopEnd + 1);
       }
     }
+
+    window.requestAnimationFrame(this.drawWaveform.bind(this));
   }
 
   /**

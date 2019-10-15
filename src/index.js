@@ -4,7 +4,7 @@
   const playbackDiv = document.getElementById('playback-div');
 
   var song = null, renderer = null;
-  var drawInterval = null, clockInterval = null;
+  var clockInterval = null;
 
   var songName = "";
 
@@ -106,11 +106,9 @@
 
     if (song.isPlaying) {
       playButton.innerHTML = "<i class=\"fas fa-pause-circle\"></i>";
-      drawInterval = setInterval(renderer.drawWaveform, 40, renderer);
       clockInterval = setInterval(updateClock, 200, song);
     } else {
       playButton.innerHTML = "<i class=\"fas fa-play-circle\"></i>";
-      clearInterval(drawInterval);
       clearInterval(clockInterval);
     }
   }
@@ -151,7 +149,7 @@
       return;
 
     var selectionBar = getSelectionBar(e);
-    if (song.isPlaying && renderer !== null) {
+    if (renderer !== null) {
       renderer.selectionBar = selectionBar;
       clockSeconds = getSecondsFromSelectionBar(renderer.selectionBar);
       updateClock(song);
@@ -208,15 +206,15 @@
 
     mouseIsDown = false;
     if (Date.now() - mouseDownTime <= CLICK_TIME_MS) {
-      // the user clicked
-      if (!song.isPlaying) {
-        song.play();
-        return;
-      }
-
       var selection = getSelectionBar(e);
       // convert the selection bar into actual seconds, then jump to that time
       var offset = getSecondsFromSelectionBar(selection);
+
+      // the user clicked
+      if (!song.isPlaying) {
+        song.play(offset);
+        return;
+      }
 
       // if the song is looping, and the user clicks inside the loop,
       // seek to that position in the loop. If the user clicks outside the loop,
