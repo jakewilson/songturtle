@@ -23,7 +23,7 @@
   </style>
 </head>
 <body class="d-flex flex-column h-100">
-  <nav class="navbar navbar-expand navbar-dark bg-success text-white shadow-sm">
+  <nav class="navbar navbar-expand navbar-dark bg-dark text-white shadow-sm">
     <div class="container">
       <h1 class="mb-0 h5 py-1">Song Turtle</h1>
       <a class="text-white no-underline h2 mb-0" href="https://github.com/jakewilson/songturtle" title="view project on github">
@@ -54,6 +54,8 @@
       <div class="row">
         <div class="col-sm-2"></div>
         <div class="col-md">
+          Song Turtle helps you learn music by ear. You can select and loop any segment of a song and change its speed.
+          <br /><br />
           <div class="custom-file text-left">
             <input type="file" class="fileInp" id="fileInput">
             <label for="fileInput" class="pr-2 pl-2" title="upload an audio file">Upload an audio file</label>
@@ -63,16 +65,19 @@
       </div>
       <br class="my-4">
       <div class="row">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-1" id="playbackDiv" style="display: none">
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.25">.25x</button>
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.5">.50x</button>
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="0.75">.75x</button>
-            <button class="btn btn-warning w-100 mb-1 mt-1 playbackButton" value="1">1x</button>
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.25">1.25x</button>
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.50">1.5x</button>
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="1.75">1.75x</button>
-            <button class="btn btn-success w-100 mb-1 mt-1 playbackButton" value="2">2x</button>
+        <div class="col-sm-2">
+          <div style="display:none">
+          Click and drag on the waveform to select a loop.
+          Click away from the loop to remove it. Single click anywhere on the
+          waveform to seek.
+          <br /><br />
+          <h3>Keys</h3>
+          <hr />
+          <strong>Backspace </strong>: Delete loop <br />
+          <strong>L         </strong>: Start/end loop
+          <strong>Right/Left</strong>: +/- 5 seconds <br />
+          <strong>Spacebar  </strong>: Play/pause <br />
+          </div>
         </div>
         <div class="col-md">
           <div class="text-center" id="loadingDiv" style="display: none">
@@ -87,7 +92,7 @@
             <br />
             <canvas class="w-100 h-25" width="600"></canvas>
             <br />
-            <button class="btn btn-success w-100" id="playButton">
+            <button class="btn btn-primary btn-block" id="playButton">
                 <i class="fas fa-play-circle"></i>
             </button>
           </div>
@@ -104,37 +109,22 @@
       <div class="row">
         <div class="col-sm-2"></div>
         <div class="col-md">
-          <p class="text-left">
-            Song Turtle allows you to upload audio files, loop any part of the song you want, and change
-            the playback speed.
-            Upload an audio file to get started.
-          </p>
-          <div id="accordion" style="display: none">
-            <div class="card">
-              <div class="card-header bg-success" id="headingOne">
-                <h5 class="mb-0">
-                  <button class="btn btn-link text-white no-underline" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    Instructions
-                  </button>
-                </h5>
+          <form>
+            <div class="form-row mt-2">
+              <div class="col">
+                <button type="button" class="btn btn-secondary btn-block playbackButton" value="0.5">.50x</button>
               </div>
-              <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-                <div class="card-body">
-                  Click and drag on the waveform to select a loop.
-                  Click away from the loop to remove it. Single click anywhere on the
-                  waveform to seek.
-                  <br /><br />
-                  <h3>Keys</h3>
-                  <hr />
-                  <strong>Backspace </strong>: Delete loop <br />
-                  <strong>L         </strong>: Start looping wherever the song is playing. L again to stop the loop <br />
-                  <strong>Up/Down   </strong>: Change playback speed <br />
-                  <strong>Right/Left</strong>: Seek +/- 5 seconds <br />
-                  <strong>Spacebar  </strong>: Play/pause <br />
-                </div>
+              <div class="col">
+                <button type="button" class="btn btn-secondary btn-block playbackButton" value="0.75">.75x</button>
+              </div>
+              <div class="col">
+                <button type="button" class="btn btn-warning btn-block playbackButton" value="1">1x</button>
+              </div>
+              <div class="col">
+                <button id="custom-speed" type="button" class="btn btn-secondary btn-block playbackButton">Custom</button>
               </div>
             </div>
-          </div>
+          </form>
         </div>
         <div class="col-sm-2"></div>
       </div>

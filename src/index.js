@@ -1,7 +1,6 @@
 (function() {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext);
   const canvas = document.querySelector('canvas');
-  const playbackDiv = document.getElementById('playback-div');
 
   var song = null, renderer = null;
   var clockInterval = null;
@@ -16,8 +15,6 @@
     // hide the loading div and show the canvas
     hideElement('loadingDiv');
     showElement('musicDiv');
-    showElement('playbackDiv');
-    showElement('accordion');
 
     song = new Song(audioCtx, audioBuffer, canvas);
     song.onStart(toggleButton);
@@ -404,7 +401,7 @@
   };
 
   const playbackButtons = document.getElementsByClassName('playbackButton');
-  let buttonClickedIdx = 3; // index of 1x button
+  let buttonClickedIdx = 2; // index of 1x button
 
   function playbackButtonClick(e) {
     if (!song)
@@ -413,11 +410,11 @@
     if (buttonClickedIdx > -1 && buttonClickedIdx < playbackButtons.length) {
       let item = playbackButtons.item(buttonClickedIdx);
       item.classList.remove('btn-warning');
-      item.classList.add('btn-success');
+      item.classList.add('btn-secondary');
     }
     // change the selected button to yellow color
     let elem = e.target;
-    elem.classList.remove('btn-success');
+    elem.classList.remove('btn-secondary');
     elem.classList.add('btn-warning');
     song.changePlayback(elem.value);
 
@@ -428,12 +425,47 @@
         buttonClickedIdx = i;
       }
     }
-
   }
 
-  for (let i = 0; i < playbackButtons.length; i++) {
+  for (let i = 0; i < playbackButtons.length - 1; i++) {
     playbackButtons.item(i).addEventListener('click', playbackButtonClick);
   }
+
+  const speedDiv = document.createElement('div');
+
+  const speedSpan = document.createElement('span');
+  speedDiv.className = 'text-center';
+
+  const speedRange = document.createElement('input');
+  speedRange.type = 'range';
+  speedRange.max = 2;
+  speedRange.min = 0.25;
+  speedRange.step = 0.05;
+
+  speedRange.oninput = function() {
+    speedSpan.innerHTML = this.value + 'x';
+  }
+
+  speedRange.onchange = function() {
+    if (song)
+      song.changePlayback(this.value);
+  }
+
+  speedDiv.appendChild(speedSpan);
+  speedDiv.appendChild(document.createElement('br'));
+  speedDiv.appendChild(speedRange);
+
+  $('#custom-speed').popover({
+    placement: "top",
+    html: true,
+    content: speedDiv,
+    trigger: 'click'
+  });
+
+  $('#custom-speed').on('inserted.bs.popover', function () {
+    speedRange.value = playbackButtons.item(buttonClickedIdx).value;
+    speedSpan.innerHTML = speedRange.value + 'x';
+  });
 
   (function() {
     const xhr = new XMLHttpRequest();
