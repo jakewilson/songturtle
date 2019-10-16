@@ -482,8 +482,6 @@
     $(this).popover('toggle');
   });
 
-  $('#custom-speed').popover
-
   $('#custom-speed').on('inserted.bs.popover', function () {
     speedRange.value = playbackButtons.item(buttonClickedIdx).value;
     speedSpan.innerHTML = speedRange.value + 'x';
@@ -492,6 +490,8 @@
   $('#custom-speed').on('shown.bs.popover', function () {
     speedRange.value = playbackButtons.item(buttonClickedIdx).value;
     speedSpan.innerHTML = speedRange.value + 'x';
+    // the popover is different every time, so whenever it's visible, make sure
+    // that if it's clicked it doesn't get hidden
     $('.popover').click(() => {
       hidePopover = false;
     });
@@ -500,7 +500,6 @@
   $('html').click(() => {
     if (hidePopover) {
       $('#custom-speed').popover('hide');
-      console.log('hiding');
     }
     hidePopover = true;
   });

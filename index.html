@@ -23,10 +23,18 @@
     html, body {
       min-height: 100%
     }
+    .keyboard {
+      border: 1px solid grey;
+      border-radius: 10px;
+      background-color: lightgrey;
+      color: black;
+      box-shadow: -0.1em 0.1em;
+      padding: 0.3em;
+    }
   </style>
 </head>
 <body class="d-flex flex-column h-100">
-  <nav class="navbar navbar-expand navbar-dark bg-dark text-white shadow-sm">
+  <nav class="navbar navbar-expand navbar-dark bg-success text-white shadow-sm">
     <div class="container">
       <h1 class="mb-0 h5 py-1">Song Turtle</h1>
       <a class="text-white no-underline h2 mb-0" href="https://github.com/jakewilson/songturtle" title="view project on github">
@@ -133,7 +141,32 @@
       </div>
       <div class="row">
         <div class="col-sm-2"></div>
-        <div class="col-md"></div>
+        <div class="col-md mt-2">
+          <h3 class="text-center">Keys</h3>
+          <hr />
+          <form>
+            <div class="form-row">
+              <div class="col">
+                <span class="keyboard">backspace</span>
+                <span>remove loop</span>
+              </div>
+              <div class="col text-right">
+                <span class="keyboard">L</span>
+                <span>start/end loop</span>
+              </div>
+            </div>
+            <div class="form-row mt-3">
+              <div class="col">
+                <span class="keyboard">&#8592;&#8594;</span>
+                <span>seek +/- 5 seconds</span>
+              </div>
+              <div class="col text-right">
+                <span class="keyboard">spacebar</span>
+                <span>play/pause</span>
+              </div>
+            </div>
+          </form>
+        </div>
         <div class="col-sm-2"></div>
       </div>
       <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
