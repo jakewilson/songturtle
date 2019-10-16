@@ -407,6 +407,12 @@
     if (!song)
       return;
 
+    let customSpeedBtn = document.getElementById('custom-speed');
+    if (customSpeedBtn.classList.contains('btn-warning')) {
+      customSpeedBtn.classList.remove('btn-warning');
+      customSpeedBtn.classList.add('btn-secondary');
+    }
+
     if (buttonClickedIdx > -1 && buttonClickedIdx < playbackButtons.length) {
       let item = playbackButtons.item(buttonClickedIdx);
       item.classList.remove('btn-warning');
@@ -427,7 +433,7 @@
     }
   }
 
-  for (let i = 0; i < playbackButtons.length - 1; i++) {
+  for (let i = 0; i < playbackButtons.length; i++) {
     playbackButtons.item(i).addEventListener('click', playbackButtonClick);
   }
 
@@ -459,12 +465,44 @@
     placement: "top",
     html: true,
     content: speedDiv,
-    trigger: 'click'
+    trigger: 'manual'
   });
+
+  let hidePopover = true;
+  $('#custom-speed').click(function() {
+    hidePopover = false;
+    if (buttonClickedIdx > -1 && buttonClickedIdx < playbackButtons.length) {
+      let item = playbackButtons.item(buttonClickedIdx);
+      item.classList.remove('btn-warning');
+      item.classList.add('btn-secondary');
+    }
+    this.classList.remove('btn-secondary');
+    this.classList.add('btn-warning');
+
+    $(this).popover('toggle');
+  });
+
+  $('#custom-speed').popover
 
   $('#custom-speed').on('inserted.bs.popover', function () {
     speedRange.value = playbackButtons.item(buttonClickedIdx).value;
     speedSpan.innerHTML = speedRange.value + 'x';
+  });
+
+  $('#custom-speed').on('shown.bs.popover', function () {
+    speedRange.value = playbackButtons.item(buttonClickedIdx).value;
+    speedSpan.innerHTML = speedRange.value + 'x';
+    $('.popover').click(() => {
+      hidePopover = false;
+    });
+  });
+
+  $('html').click(() => {
+    if (hidePopover) {
+      $('#custom-speed').popover('hide');
+      console.log('hiding');
+    }
+    hidePopover = true;
   });
 
   (function() {
