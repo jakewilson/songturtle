@@ -39,6 +39,27 @@
   const fileInput = document.getElementById('fileInput');
   fileInput.addEventListener('change', getFile);
 
+  const dropZone = document.getElementById('drop_zone');
+  dropZone.addEventListener('drop', (e) => {
+    // don't want the browser opening the file
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      let file = e.dataTransfer.files[0];
+      getFile.call({files: [file]});
+    }
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+    // don't want the browser opening the file
+    e.preventDefault();
+    // show visual cue that dropping the file here is intended
+    e.dataTransfer.dropEffect = 'copy';
+  });
+
+  $('#drop_zone').click(() => {
+    $(fileInput).click();
+  });
+
   /**
    * Loads the file selected by the user. If it is not an mp3, show an error and don't
    * load the file.
