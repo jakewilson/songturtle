@@ -41,6 +41,9 @@
 
   const dropZone = document.getElementById('drop_zone');
   dropZone.addEventListener('drop', (e) => {
+    dropZone.style.backgroundColor = '#7ecf7a';
+    dropZone.classList.remove('bg-success');
+
     // don't want the browser opening the file
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -54,6 +57,15 @@
     e.preventDefault();
     // show visual cue that dropping the file here is intended
     e.dataTransfer.dropEffect = 'copy';
+    dropZone.classList.add('bg-success');
+    dropZone.style.backgroundColor = '';
+  });
+
+  dropZone.addEventListener('dragleave', (e) => {
+    // don't want the browser opening the file
+    e.preventDefault();
+    dropZone.style.backgroundColor = '#7ecf7a';
+    dropZone.classList.remove('bg-success');
   });
 
   $('#drop_zone').click(() => {
