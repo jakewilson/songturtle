@@ -4,6 +4,7 @@
   <title>Song Turtle</title>
   <link rel="stylesheet" href="css/bootstrap.min.css" />
   <link rel="stylesheet" href="css/all.min.css" />
+  <link rel="icon" href="favicon.png" type="image/png" />
   <style>
     .fileInp {
       opacity: 0;
@@ -69,7 +70,7 @@
           <br /><br />
           <div class="custom-file text-left">
             <input type="file" class="fileInp" id="fileInput">
-            <label for="fileInput" class="pr-2 pl-2" title="upload an audio file">Upload an audio file</label>
+            <label for="fileInput" class="pr-2 pl-2 btn-success" title="upload an audio file">Upload an audio file</label>
           </div>
         </div>
         <div class="col-sm-2"></div>
@@ -132,7 +133,7 @@
                 <button type="button" class="btn btn-warning btn-block playbackButton" value="1">1x</button>
               </div>
               <div class="col">
-                <button id="custom-speed" type="button" class="btn btn-secondary btn-block">Custom</button>
+                <button id="custom-speed" type="button" class="btn btn-secondary btn-block">Custom Speed</button>
               </div>
             </div>
           </form>
@@ -151,7 +152,7 @@
                 <span>remove loop</span>
               </div>
               <div class="col text-right">
-                <span class="keyboard">L</span>
+                <span class="keyboard pr-2 pl-2">L</span>
                 <span>start/end loop</span>
               </div>
             </div>
