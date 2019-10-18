@@ -393,28 +393,6 @@
         break;
       }
 
-      case "ArrowUp": {
-        e.preventDefault();
-        if (buttonClickedIdx > 0) {
-          let elem = {
-            target: playbackButtons.item(buttonClickedIdx - 1)
-          };
-          playbackButtonClick(elem);
-        }
-        break;
-      }
-
-      case "ArrowDown": {
-        e.preventDefault();
-        if (buttonClickedIdx < playbackButtons.length - 1) {
-          let elem = {
-            target: playbackButtons.item(buttonClickedIdx + 1)
-          };
-          playbackButtonClick(elem);
-        }
-        break;
-      }
-
       case "l": {
         if (song.isPlaying && !song.looping) {
           if (loopInterval === -1) {
@@ -455,7 +433,7 @@
     let elem = e.target;
     elem.classList.remove('btn-secondary');
     elem.classList.add('btn-warning');
-    song.changePlayback(elem.value);
+    song.playback = elem.value;
 
     // remove the yellow from whichever button had it and re-add the green
     for (let i = 0; i < playbackButtons.length; i++) {
@@ -487,7 +465,7 @@
 
   speedRange.onchange = function() {
     if (song)
-      song.changePlayback(this.value);
+      song.playback = this.value;
   }
 
   speedDiv.appendChild(speedSpan);

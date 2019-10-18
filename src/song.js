@@ -1,20 +1,62 @@
 function Song(audioCtx, audioBuffer) {
   this.audioCtx = audioCtx;
-  this.isPlaying = false;
   this.audioBuffer = audioBuffer;
   this.duration = this.audioBuffer.duration;
   this.intervalId = 0;
-  this.playback = 1;
+
+  this.BUFFER_SIZE = 4096;
+  this.FRAME_SIZE = 2048;
+
+  var _playback = 1;
+  var _position = 0;
+  var _isPlaying = false;
+  var _node = this.audioCtx.createScriptProcessor(this.BUFFER_SIZE, 2);
+  
+  // phase vocoder for changing speed seamlessly
+  var _pv = new BufferedPV(this.FRAME_SIZE);
+
+  _pv.set_audio_buffer(this.audioBuffer);
+  var _nodePos = 0;
+
+  _node.onaudioprocess = function(e) {
+    if (_isPlaying) {
+      _pv.alpha = _playback;
+
+      if (_nodePos != undefined) {
+        _pv.position = _nodePos;
+        _nodePos = undefined;
+      }
+
+      _pv.process(e.outputBuffer);
+      _position = _pv.position;
+    } 
+  }
+
+  Object.defineProperties(this, {
+    'isPlaying': {
+      get: function() {
+        return _isPlaying;
+      }
+    },
+    'position': {
+      get: function() {
+        return _position / 1000;
+      }
+    },
+    'playback': {
+      get: function() {
+        return _playback;
+      },
+      set: function(playback) {
+        _playback = playback;
+      }
+    }
+  });
 
   /**
    * How often to call this.timeStep()
    */
   this.timeStepMs = 50;
-
-  /**
-   * The position in seconds
-   */
-  this.position = 0;
 
   this.waveformLength = 200;
 
@@ -32,7 +74,7 @@ function Song(audioCtx, audioBuffer) {
    * @param offset the position in seconds at which to start the song
    */
   this.play = function(offset) {
-    if (this.isPlaying)
+    if (_isPlaying)
       return;
 
     this._play(offset);
@@ -42,30 +84,36 @@ function Song(audioCtx, audioBuffer) {
     }
   };
 
+  this.gain = this.audioCtx.createGain();
+
   /**
    * Plays the song the song
    * @param offset the position in seconds at which to start the song
    */
   this._play = function(offset) {
     if (offset === undefined || offset === null) {
-      offset = this.position;
+      offset = _position;
     } else {
-      this.position = offset;
+      _position = offset;
     }
 
-    this._createBufferSource();
-    this.source.start(0, offset);
+    //this._createBufferSource();
+    //this.source.start(0, offset);
     this.startTime = this.getCurrentTime();
-    this.isPlaying = true;
+    _node.connect(this.gain);
+    this.gain.connect(this.audioCtx.destination);
+    _isPlaying = true;
 
     this.lastTimeStep = this.startTime;
     // start the song time step
+/*
     if (this.playback != 1)
       // if the playback is not 1, we want a timeout since we will constantly
       // be stopping and starting the song every time
       this.intervalId = setTimeout(this.timeStep.bind(this), this.timeStepMs);
     else
       this.intervalId = setInterval(this.timeStep.bind(this), this.timeStepMs);
+*/
   };
 
   /**
@@ -83,7 +131,7 @@ function Song(audioCtx, audioBuffer) {
       this.source.loopEnd = this.loopEnd;
     }
 
-    this.source.connect(this.audioCtx.destination);
+    this.source.connect(_node);
   };
 
   /**
@@ -106,9 +154,9 @@ function Song(audioCtx, audioBuffer) {
     if (position > this.duration)
       position = this.duration;
 
-    this.position = position;
+    _position = position;
 
-    if (this.isPlaying) {
+    if (_isPlaying) {
       this._stop();
       this._play();
     }
@@ -118,7 +166,7 @@ function Song(audioCtx, audioBuffer) {
    * Stop the song
    */
   this.stop = function() {
-    if (!this.isPlaying)
+    if (!_isPlaying)
       return;
 
     this._stop();
@@ -129,14 +177,16 @@ function Song(audioCtx, audioBuffer) {
   };
 
   this._stop = function() {
-    clearInterval(this.intervalId);
+    //clearInterval(this.intervalId);
 
+/*
     // move the position along by however much
     // time has passed since the last timestep
-    this.position += this.getDelta() * this.playback;
+    _position += this.getDelta() * this.playback;
 
     this.source.stop();
-    this.isPlaying = false;
+*/
+    _isPlaying = false;
   };
 
   /**
@@ -144,7 +194,7 @@ function Song(audioCtx, audioBuffer) {
    * if one exists
    */
   this.reset = function() {
-    this.position = 0;
+    _position = 0;
     this.unloop();
   };
 
@@ -168,7 +218,7 @@ function Song(audioCtx, audioBuffer) {
     this.loopStart = 0;
     this.loopEnd = 0;
 
-    if (this.isPlaying) {
+    if (_isPlaying) {
       this._stop();
       this._play();
     }
@@ -182,12 +232,13 @@ function Song(audioCtx, audioBuffer) {
    * stopping the song if it's finished, and other song-related, time sensitive things
    */
   this.timeStep = function() {
-    if (!this.isPlaying)
+    if (!_isPlaying)
       return;
 
-    this.position += this.getDelta() * this.playback;
+/*
+    _position += this.getDelta();
 
-    if (this.position > this.duration) {
+    if (_position > this.duration) {
       this.stop();
       this.reset();
       return;
@@ -197,17 +248,13 @@ function Song(audioCtx, audioBuffer) {
       const loopStart = this.loopStart;
       const loopEnd = this.loopEnd;
 
-      if (this.position >= loopEnd) {
-        this.position = loopStart + (this.position - loopEnd);
+      if (_position >= loopEnd) {
+        _position = loopStart + (_position - loopEnd);
       }
     }
 
     this.lastTimeStep = this.getCurrentTime();
-
-    if (this.playback != 1) {
-      this._stop();
-      this._play();
-    }
+*/
   };
 
   /**
@@ -251,7 +298,7 @@ function Song(audioCtx, audioBuffer) {
   this.changePlayback = function(playback) {
     this.playback = playback;
 
-    if (this.isPlaying) {
+    if (_isPlaying) {
       this.stop();
       this.play();
     }

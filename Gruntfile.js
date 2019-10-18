@@ -8,7 +8,15 @@ module.exports = function(grunt) {
     'index.js'
   ].map((it) => {
     return 'src/' + it
-  });
+  })
+  .concat(
+    [
+      'cbuffer.js',
+      'dsp.js',
+      'phase_vocoder.js',
+      'buffered-pv.js'
+    ].map(it => 'lib/' + it)
+  );
 
   // Project configuration.
   grunt.initConfig({
