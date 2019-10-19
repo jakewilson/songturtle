@@ -8,15 +8,14 @@ module.exports = function(grunt) {
     'index.js'
   ].map((it) => {
     return 'src/' + it
-  })
-  .concat(
-    [
-      'cbuffer.js',
-      'dsp.js',
-      'phase_vocoder.js',
-      'buffered-pv.js'
-    ].map(it => 'lib/' + it)
-  );
+  });
+
+  var libs = [
+    'cbuffer.js',
+    'dsp.js',
+    'phase_vocoder.js',
+    'buffered-pv.js'
+    ].map(it => 'lib/' + it);
 
   // Project configuration.
   grunt.initConfig({
@@ -26,7 +25,7 @@ module.exports = function(grunt) {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       build: {
-        src: paths,
+        src: libs.concat(paths),
         dest: 'build/<%= pkg.name %>.min.js'
       }
     }

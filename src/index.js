@@ -426,7 +426,7 @@
     let elem = e.target;
     elem.classList.remove('btn-secondary');
     elem.classList.add('btn-warning');
-    song.playback = elem.value;
+    song.changePlayback(elem.value);
 
     // remove the yellow from whichever button had it and re-add the green
     for (let i = 0; i < playbackButtons.length; i++) {
@@ -457,8 +457,9 @@
   }
 
   speedRange.onchange = function() {
-    if (song)
-      song.playback = this.value;
+    if (song) {
+      song.changePlayback(this.value);
+    }
   }
 
   speedDiv.appendChild(speedSpan);
@@ -487,13 +488,11 @@
   });
 
   $('#custom-speed').on('inserted.bs.popover', function () {
-    speedRange.value = playbackButtons.item(buttonClickedIdx).value;
+    speedRange.value = song.playback;
     speedSpan.innerHTML = speedRange.value + 'x';
   });
 
   $('#custom-speed').on('shown.bs.popover', function () {
-    speedRange.value = playbackButtons.item(buttonClickedIdx).value;
-    speedSpan.innerHTML = speedRange.value + 'x';
     // the popover is different every time, so whenever it's visible, make sure
     // that if it's clicked it doesn't get hidden
     $('.popover').click(() => {

@@ -19,11 +19,16 @@ function Song(audioCtx, audioBuffer) {
   var _pv = new BufferedPV(this.FRAME_SIZE);
 
   _pv.set_audio_buffer(this.audioBuffer);
+
   var _nodePos = 0;
+  var _nodePlayback = 1;
 
   this.onAudioProcess = function(e) {
     if (this.isPlaying) {
-      _pv.alpha = this.playback;
+      if (_nodePlayback != undefined) {
+        _pv.alpha = _nodePlayback;
+        _nodePlayback = undefined;
+      }
 
       if (_nodePos != undefined) {
         _pv.position = _nodePos;
@@ -86,6 +91,9 @@ function Song(audioCtx, audioBuffer) {
       this.seek(offset);
     }
 
+    // no AudioSourceNode's are needed. All that's needed is to connect
+    // the script processor, and the phase vocoder will populate the
+    // output buffer, which will be passed on by the processor
     _node.connect(this.gain);
     this.gain.connect(this.audioCtx.destination);
     this.isPlaying = true;
@@ -137,6 +145,8 @@ function Song(audioCtx, audioBuffer) {
    */
   this.reset = function() {
     _nodePos = 0;
+    this.position = 0;
+
     _pv = new BufferedPV(this.FRAME_SIZE);
 
     _pv.set_audio_buffer(this.audioBuffer);
@@ -196,11 +206,11 @@ function Song(audioCtx, audioBuffer) {
    * @param playback the new song playback rate
    */
   this.changePlayback = function(playback) {
-    this.playback = playback;
+    if (playback == 0)
+      return;
 
-    if (this.isPlaying) {
-      this.stop();
-      this.play();
-    }
+    this.playback = playback;
+    // the phase vocoder uses the playback inverse
+    _nodePlayback = 1 / playback;
   };
 }
