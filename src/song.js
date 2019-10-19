@@ -209,6 +209,12 @@ function Song(audioCtx, audioBuffer) {
     if (playback == 0)
       return;
 
+    if (playback < 0.4)
+      playback = 0.4;
+
+    if (playback > 2)
+      playback = 2;
+
     this.playback = playback;
     // the phase vocoder uses the playback inverse
     _nodePlayback = 1 / playback;

@@ -449,7 +449,7 @@
   const speedRange = document.createElement('input');
   speedRange.type = 'range';
   speedRange.max = 2;
-  speedRange.min = 0.25;
+  speedRange.min = 0.4;
   speedRange.step = 0.05;
 
   speedRange.oninput = function() {
