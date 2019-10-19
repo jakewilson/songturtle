@@ -23,7 +23,6 @@ function Song(audioCtx, audioBuffer) {
 
   this.onAudioProcess = function(e) {
     if (this.isPlaying) {
-      console.log('heya');
       _pv.alpha = this.playback;
 
       if (_nodePos != undefined) {
@@ -32,11 +31,13 @@ function Song(audioCtx, audioBuffer) {
       }
 
       _pv.process(e.outputBuffer);
-      this.position = _pv.position / 44100;
+      this.position = _pv.position / this.audioBuffer.sampleRate;
 
       if (this.position > this.duration) {
         this.stop();
         this.reset();
+      } else if (this.looping && this.position > this.loopEnd) {
+        _nodePos = (this.loopStart * this.audioBuffer.sampleRate);
       }
     }
   };
@@ -53,8 +54,8 @@ function Song(audioCtx, audioBuffer) {
   this.waveform = new Waveform(this.audioBuffer, this.waveformLength);
 
   this.looping = false;
-  this.loopStart = 0;
-  this.loopEnd = 0;
+  this.loopStart = 0; // in seconds
+  this.loopEnd = 0; // in seconds
 
   /** the time the song was started */
   this.startTime = 0;
@@ -81,10 +82,8 @@ function Song(audioCtx, audioBuffer) {
    * @param offset the position in seconds at which to start the song
    */
   this._play = function(offset) {
-    if (offset === undefined || offset === null) {
-      offset = this.position;
-    } else {
-      this.position = offset;
+    if (offset !== undefined && offset !== null) {
+      this.seek(offset);
     }
 
     _node.connect(this.gain);
@@ -101,7 +100,6 @@ function Song(audioCtx, audioBuffer) {
     if (position < 0)
       position = 0;
 
-    position *= 44100;
 
     if (this.looping) {
       if (position > this.loopEnd) {
@@ -111,7 +109,7 @@ function Song(audioCtx, audioBuffer) {
       }
     }
 
-    _nodePos = position;
+    _nodePos = position * this.audioBuffer.sampleRate;
   };
 
   /**
@@ -164,11 +162,6 @@ function Song(audioCtx, audioBuffer) {
     this.looping = false;
     this.loopStart = 0;
     this.loopEnd = 0;
-
-    if (this.isPlaying) {
-      this._stop();
-      this._play();
-    }
   };
 
   /**

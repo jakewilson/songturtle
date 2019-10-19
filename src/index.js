@@ -192,13 +192,6 @@
       renderer.selectionBar = null;
       renderer.selectionStart = tempLoopStart;
       renderer.selectionEnd = selectionBar;
-
-      // allow the user to draw a loop if the song isn't playing
-      // we check to make sure it's not playing, because if it is then
-      // it will be drawn automatically
-      if (!song.isPlaying) {
-        renderer.drawWaveform(renderer);
-      }
     }
   });
 
