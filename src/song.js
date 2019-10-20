@@ -91,6 +91,9 @@ function Song(audioCtx, audioBuffer) {
       this.seek(offset);
     }
 
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume();
+    }
     // no AudioSourceNode's are needed. All that's needed is to connect
     // the script processor, and the phase vocoder will populate the
     // output buffer, which will be passed on by the processor
