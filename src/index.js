@@ -6,6 +6,8 @@
   var clockInterval = null;
 
   var songName = "";
+  var loopStartInp = document.getElementById('loopStart');
+  var loopEndInp = document.getElementById('loopEnd');
 
   function onMp3Load(arrayBuffer) {
     audioCtx.decodeAudioData(arrayBuffer, songInit, songInitError);
@@ -274,10 +276,44 @@
     song.loop(startSeconds, endSeconds);
     song.play(song.loopStart);
 
-    document.getElementById('loopStart').innerHTML = formatTime(startSeconds);
-    document.getElementById('loopEnd').innerHTML = formatTime(endSeconds);
+    loopStartInp.value = formatTime(startSeconds);
+    loopEndInp.value = formatTime(endSeconds);
     showElement('loopDiv');
   }
+
+  loopStartInp.addEventListener('change', (e) => {
+    if (!song)
+      return;
+
+    let startTime = parseTime(loopStartInp.value);
+    if (startTime === -1 || startTime >= song.loopEnd) {
+      loopStartInp.value = formatTime(song.loopStart);
+      return;
+    }
+
+    if (startTime > song.position) {
+      song.seek(startTime);
+    }
+
+    song.loopStart = startTime;
+    renderer.loopStart = getSelectionBarFromSeconds(startTime);
+    loopStartInp.value = formatTime(startTime);
+  });
+
+  loopEndInp.addEventListener('change', (e) => {
+    if (!song)
+      return;
+
+    let endTime = parseTime(loopEndInp.value);
+    if (endTime === -1 || endTime <= song.loopStart) {
+      loopEndInp.value = formatTime(song.loopEnd);
+      return;
+    }
+
+    song.loopEnd = endTime;
+    renderer.loopEnd = getSelectionBarFromSeconds(endTime);
+    loopEndInp.value = formatTime(endTime);
+  });
 
   function removeLoop() {
     if (!song)
@@ -355,8 +391,11 @@
   }
 
   // key commands
-  document.querySelector('body').onkeydown = function(e) {
+  document.body.onkeydown = function(e) {
     if (!song)
+      return;
+
+    if (document.activeElement === loopStartInp || document.activeElement === loopEndInp)
       return;
 
     switch (e.key) {
