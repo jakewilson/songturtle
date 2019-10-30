@@ -366,6 +366,7 @@
         break;
       }
 
+      case "Escape":
       case "Backspace": {
         e.preventDefault();
         removeLoop();

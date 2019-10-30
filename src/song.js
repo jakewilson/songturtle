@@ -2,7 +2,6 @@ function Song(audioCtx, audioBuffer) {
   this.audioCtx = audioCtx;
   this.audioBuffer = audioBuffer;
   this.duration = this.audioBuffer.duration;
-  this.intervalId = 0;
 
   this.BUFFER_SIZE = 4096;
   this.FRAME_SIZE = 2048;
