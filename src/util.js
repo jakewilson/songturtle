@@ -53,7 +53,7 @@ function parseTime(time) {
     return -1;
   }
 
-  if (segments.some(i => isNaN(i))) {
+  if (segments.some(i => isNaN(i) || i < 0)) {
     return -1;
   }
 
