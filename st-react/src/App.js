@@ -1,6 +1,7 @@
 import React from 'react';
 import Song from './Song.js';
 import './App.css';
+import './bootstrap.min.css';
 
 class SongInput extends React.Component {
   constructor(props) {
@@ -16,9 +17,9 @@ class SongInput extends React.Component {
   render() {
     return (
       <div className="SongInput">
-        <p>
+        <span>
           Song Turtle helps you learn music by ear. You can select and loop any segment of a song and change its speed.
-        </p>
+        </span>
         <br /><br />
         <input type="file" ref={this.fileInput} onChange={this.props.onChange} />
         <div className="drop-zone text-center pt-3 pb-3 shadow-sm" onClick={this.loadFile}>
@@ -71,7 +72,15 @@ class App extends React.Component {
 
   render() {
     return (
-      <SongInput onChange={this.fileSelected.bind(this)}/>
+      <div className="container">
+        <div class="row mt-5">
+          <div class="col-sm-2"></div>
+          <div class="col-md">
+            <SongInput onChange={this.fileSelected.bind(this)}/>
+          </div>
+          <div class="col-sm-2"></div>
+        </div>
+      </div>
     );
   }
 }

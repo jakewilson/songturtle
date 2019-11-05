@@ -28,17 +28,17 @@ export default function Waveform(audioBuffer, length) {
 
     const numChannels = this.audioBuffer.numberOfChannels;
     const channelData = [];
-    for (var channel = 0; channel < numChannels; channel++) {
+    for (let channel = 0; channel < numChannels; channel++) {
       channelData.push(this.audioBuffer.getChannelData(channel));
     }
 
     const data = new Float32Array(this.length);
 
-    var dataIdx = 0;
-    for (var i = 0; i < songLength; i += inc) {
+    let dataIdx = 0;
+    for (let i = 0; i < songLength; i += inc) {
       var meanSquare = 0;
-      for (var j = i; j < (i + inc); j++) {
-        for (var channel = 0; channel < numChannels; channel++) {
+      for (let j = i; j < (i + inc); j++) {
+        for (let channel = 0; channel < numChannels; channel++) {
           meanSquare += (channelData[channel][j] * channelData[channel][j]);
         }
       }
