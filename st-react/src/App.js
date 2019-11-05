@@ -1,5 +1,6 @@
 import React from 'react';
 import Song from './Song.js';
+import {formatTime} from './util.js';
 import './App.css';
 import './bootstrap.min.css';
 
@@ -30,6 +31,47 @@ class SongInput extends React.Component {
   }
 }
 
+class Waveform extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.canvas = React.createRef();
+  }
+
+  render() {
+    return (
+      <canvas class="w-100 h-25" width="600" ref={this.canvas}></canvas>
+    );
+  }
+}
+
+function Time(props) {
+  return (
+    <span>{formatTime(props.currentTime)}/{formatTime(props.totalTime)}</span>
+  );
+}
+
+class SongInfo extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    if (!this.props.song) {
+      return null;
+    }
+
+    return (
+      <div>
+        <span><strong>{this.props.name}</strong></span>
+        <hr />
+        <Time currentTime={this.props.song.position} totalTime={this.props.song.duration} />
+        <br />
+      </div>
+    );
+  }
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -47,7 +89,7 @@ class App extends React.Component {
 
   songInit(audioBuffer) {
     this.setState((state) => ({
-      song: new Song(state.audioCtx, audioBuffer, null)
+      song: new Song(state.audioCtx, audioBuffer)
     }));
   }
 
@@ -68,17 +110,29 @@ class App extends React.Component {
     });
 
     reader.readAsArrayBuffer(files[0]);
+    this.setState({
+      songName: files[0].name
+    })
   }
 
   render() {
+    const song = this.state.song;
+
     return (
       <div className="container">
-        <div class="row mt-5">
-          <div class="col-sm-2"></div>
-          <div class="col-md">
+        <div className="row mt-5">
+          <div className="col-sm-2"></div>
+          <div className="col-md">
             <SongInput onChange={this.fileSelected.bind(this)}/>
           </div>
-          <div class="col-sm-2"></div>
+          <div className="col-sm-2"></div>
+        </div>
+        <div className="row mt-4">
+          <div className="col-sm-2"></div>
+          <div className="col-md">
+            <SongInfo song={song} name={this.state.songName}/>
+          </div>
+          <div className="col-sm-2"></div>
         </div>
       </div>
     );
