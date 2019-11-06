@@ -1,5 +1,5 @@
 import CBuffer from './cbuffer.js';
-import PhaseVocoder from './phase_vocoder.js'
+import PhaseVocoder from './phase_vocoder.js';
 
 function BufferedPV(frameSize) {
 

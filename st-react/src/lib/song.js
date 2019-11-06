@@ -1,4 +1,4 @@
-import BufferedPV from './buffered-pv.js'
+import BufferedPV from './buffered-pv.js';
 import Waveform from './waveform.js'
 
 function Song(audioCtx, audioBuffer) {
