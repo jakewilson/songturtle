@@ -16,3 +16,14 @@
   border: 2px solid black;
   border-radius: 5px;
 }
+
+.Key {
+  border: 1px solid grey;
+  border-radius: 10px;
+  background-color: lightgrey;
+  color: black;
+  box-shadow: -0.1em 0.1em;
+  padding: 0.3em;
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+}

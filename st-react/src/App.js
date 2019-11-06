@@ -3,6 +3,7 @@ import Song from './lib/song.js';
 import SongInput from './components/SongInput.js';
 import SongInfo from './components/SongInfo.js';
 import Playback from './components/Playback.js';
+import Instructions from './components/Instructions.js';
 
 import './css/App.css';
 import './css/bootstrap.min.css';
@@ -103,6 +104,15 @@ class App extends React.Component {
           {col}
           <div className="col-md">
             <Playback onClick={this.changeSongPlayback.bind(this)}/>
+          </div>
+          {col}
+        </div>
+        <div className="row mt-2">
+          {col}
+          <div className="col-md">
+            <h3 className="text-center">Keys</h3>
+            <hr />
+            <Instructions />
           </div>
           {col}
         </div>
