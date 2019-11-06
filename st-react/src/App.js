@@ -22,15 +22,29 @@ class App extends React.Component {
     this.toggleSong = this.toggleSong.bind(this);
   }
 
+  componentDidMount() {
+    document.addEventListener('keydown', this.onKeyDown.bind(this));
+  }
+
   readFile(arrayBuffer) {
     this.state.audioCtx.decodeAudioData(arrayBuffer, this.songLoadSuccess, this.songLoadError);
   }
 
   songLoadSuccess(audioBuffer) {
-    this.setState((state) => ({
-      song: new Song(state.audioCtx, audioBuffer),
+    const song = new Song(this.state.audioCtx, audioBuffer);
+
+    song.onStart(() => {
+      this.forceUpdate();
+    });
+
+    song.onStop(() => {
+      this.forceUpdate();
+    })
+
+    this.setState({
+      song: song,
       error: false
-    }));
+    });
   }
 
   songLoadError() {
@@ -57,13 +71,71 @@ class App extends React.Component {
   }
 
   toggleSong() {
-    this.state.song.toggle();
-    this.forceUpdate();
+    const song = this.state.song;
+    song.toggle();
+
+    this.setState({
+      song: song
+    })
   }
 
   changeSongPlayback(value) {
     const song = this.state.song;
     song.changePlayback(value);
+  }
+
+  onCanvasClick(seconds) {
+    const song = this.state.song;
+    song.seek(seconds);
+    song.play();
+
+    this.setState({
+      song: song
+    });
+  }
+
+  onKeyDown(event) {
+    const song = this.state.song;
+    if (!song)
+      return;
+
+    const key = event.key;
+    switch (key) {
+      case " ": {
+        event.preventDefault();
+        this.toggleSong();
+        break;
+      }
+
+      case "l": case "L": {
+        // TODO loop here
+        break;
+      }
+
+      case "Escape": case "Backspace":
+        // TODO cancel loop
+        break;
+
+      case "ArrowLeft": {
+        event.preventDefault();
+        song.seek(song.position - 5);
+
+        this.setState({
+          song: song
+        });
+        break;
+      }
+
+      case "ArrowRight": {
+        event.preventDefault();
+        song.seek(song.position + 5);
+
+        this.setState({
+          song: song
+        });
+        break;
+      }
+    }
   }
 
   render() {
@@ -95,7 +167,10 @@ class App extends React.Component {
         <div className="row mt-4">
           {col}
           <div className="col-md">
-            <SongInfo song={song} name={this.state.songName}/>
+            <SongInfo
+              song={song} name={this.state.songName}
+              onCanvasClick={this.onCanvasClick.bind(this)}
+            />
             <PlayButton onClick={this.toggleSong} playing={this.state.song.isPlaying} />
           </div>
           {col}

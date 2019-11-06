@@ -122,6 +122,7 @@ function Song(audioCtx, audioBuffer) {
       }
     }
 
+    this.position = position;
     _nodePos = position * this.audioBuffer.sampleRate;
   };
 
@@ -227,10 +228,8 @@ function Song(audioCtx, audioBuffer) {
 
   this.toggle = function() {
     if (this.isPlaying) {
-      console.log('stopping');
       this.stop();
     } else {
-      console.log('playing');
       this.play();
     }
   };
