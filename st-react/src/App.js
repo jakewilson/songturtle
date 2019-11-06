@@ -11,25 +11,30 @@ class App extends React.Component {
     super(props);
     this.state = {
       audioCtx: new AudioContext(),
-      song: null
+      song: null,
+      error: false
     }
 
-    this.songInit = this.songInit.bind(this);
+    this.songLoadSuccess = this.songLoadSuccess.bind(this);
+    this.songLoadError = this.songLoadError.bind(this);
+    this.toggleSong = this.toggleSong.bind(this);
   }
 
   readFile(arrayBuffer) {
-    this.state.audioCtx.decodeAudioData(arrayBuffer, this.songInit, this.songError);
+    this.state.audioCtx.decodeAudioData(arrayBuffer, this.songLoadSuccess, this.songLoadError);
   }
 
-  songInit(audioBuffer) {
+  songLoadSuccess(audioBuffer) {
     this.setState((state) => ({
-      song: new Song(state.audioCtx, audioBuffer)
+      song: new Song(state.audioCtx, audioBuffer),
+      error: false
     }));
   }
 
-  songError() {
-    console.log('error!');
-    // TODO
+  songLoadError() {
+    this.setState({
+      error: true
+    })
   }
 
   fileSelected(event) {
@@ -49,30 +54,74 @@ class App extends React.Component {
     })
   }
 
+  toggleSong() {
+    this.state.song.toggle();
+    this.forceUpdate();
+  }
+
   render() {
     const song = this.state.song;
+    const col = <div className="col-sm-2"></div>;
+
+    const songInput = (
+      <div className="row mt-5">
+        {col}
+        <div className="col-md">
+          <SongError error={this.state.error} />
+          <SongInput onChange={this.fileSelected.bind(this)}/>
+        </div>
+        {col}
+      </div>
+    );
+
+    if (!song) {
+      return (
+        <div className="container">
+          {songInput}
+        </div>
+      );
+    }
 
     return (
       <div className="container">
-        <div className="row mt-5">
-          <div className="col-sm-2"></div>
-          <div className="col-md">
-            <SongInput onChange={this.fileSelected.bind(this)}/>
-          </div>
-          <div className="col-sm-2"></div>
-        </div>
+        {songInput}
         <div className="row mt-4">
-          <div className="col-sm-2"></div>
+          {col}
           <div className="col-md">
-            {
-              song && <SongInfo song={song} name={this.state.songName}/>
-            }
+            <SongInfo song={song} name={this.state.songName}/>
+            <PlayButton onClick={this.toggleSong} playing={this.state.song.isPlaying} />
           </div>
-          <div className="col-sm-2"></div>
+          {col}
         </div>
       </div>
     );
   }
 }
+
+function SongError(props) {
+  if (props.error === false) {
+    return null;
+  }
+
+  return (
+    <div className="alert alert-danger" role="alert">
+      Error loading song
+    </div>
+  );
+}
+
+function PlayButton(props) {
+  let icon = <i className="fas fa-play-circle"></i>;
+  if (props.playing) {
+    icon = <i className="fas fa-pause-circle"></i>;
+  }
+
+  return (
+    <button className="btn btn-primary btn-block" onClick={props.onClick}>
+      {icon}
+    </button>
+  );
+}
+
 
 export default App;
