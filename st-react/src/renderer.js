@@ -119,3 +119,5 @@ function Renderer(canvas, song) {
     context.fillRect(x + this.padding, y, width, -height);
   };
 }
+
+export default Renderer;

@@ -10,3 +10,9 @@
   cursor: pointer;
   background-color: #7ecf7a;
 }
+
+.SongCanvas {
+  cursor: pointer;
+  border: 2px solid black;
+  border-radius: 5px;
+}

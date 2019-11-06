@@ -1,5 +1,6 @@
 import React from 'react';
 import Song from './Song.js';
+import Renderer from './renderer.js';
 import {formatTime} from './util.js';
 import './App.css';
 import './bootstrap.min.css';
@@ -31,20 +32,6 @@ class SongInput extends React.Component {
   }
 }
 
-class Waveform extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.canvas = React.createRef();
-  }
-
-  render() {
-    return (
-      <canvas class="w-100 h-25" width="600" ref={this.canvas}></canvas>
-    );
-  }
-}
-
 function Time(props) {
   return (
     <span>{formatTime(props.currentTime)}/{formatTime(props.totalTime)}</span>
@@ -54,6 +41,16 @@ function Time(props) {
 class SongInfo extends React.Component {
   constructor(props) {
     super(props);
+
+    this.canvas = React.createRef();
+  }
+
+  componentDidMount() {
+    const renderer = new Renderer(this.canvas.current, this.props.song);
+    renderer.drawWaveform();
+    this.setState({
+      renderer: renderer
+    });
   }
 
   render() {
@@ -67,6 +64,7 @@ class SongInfo extends React.Component {
         <hr />
         <Time currentTime={this.props.song.position} totalTime={this.props.song.duration} />
         <br />
+        <canvas className="w-100 h-25 SongCanvas" width="600" ref={this.canvas}></canvas>
       </div>
     );
   }
@@ -130,7 +128,9 @@ class App extends React.Component {
         <div className="row mt-4">
           <div className="col-sm-2"></div>
           <div className="col-md">
-            <SongInfo song={song} name={this.state.songName}/>
+            {
+              song && <SongInfo song={song} name={this.state.songName}/>
+            }
           </div>
           <div className="col-sm-2"></div>
         </div>

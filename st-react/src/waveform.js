@@ -5,7 +5,7 @@
  *        for a visual representation. The longer the length, the more
  *        accurate the waveform.
  */
-export default function Waveform(audioBuffer, length) {
+function Waveform(audioBuffer, length) {
   this.audioBuffer = audioBuffer;
   this.length = length;
   this.maxData = 0;
@@ -55,3 +55,5 @@ export default function Waveform(audioBuffer, length) {
 
   this.data = this.rms();
 }
+
+export default Waveform;
