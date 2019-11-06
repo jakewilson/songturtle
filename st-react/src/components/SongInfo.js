@@ -32,15 +32,19 @@ class SongInfo extends React.Component {
   }
 
   onCanvasMouseMove(event) {
-    this.state.renderer.selectionBar = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
+    const renderer = this.state.renderer;
+    renderer.selectionBar = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
     this.setState((state, props) => ({
+      renderer: renderer,
       mouseTime: getSecondsFromSelectionBar(props.song, state.renderer.selectionBar)
     }));
   }
 
   onCanvasMouseLeave(event) {
-    this.state.renderer.selectionBar = null;
+    const renderer = this.state.renderer;
+    renderer.selectionBar = null;
     this.setState({
+      renderer: renderer,
       mouseTime: null // TODO may need to set this to the song time
     });
   }

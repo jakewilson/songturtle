@@ -2,6 +2,7 @@ import React from 'react';
 import Song from './lib/song.js';
 import SongInput from './components/SongInput.js';
 import SongInfo from './components/SongInfo.js';
+import Playback from './components/Playback.js';
 
 import './css/App.css';
 import './css/bootstrap.min.css';
@@ -59,6 +60,11 @@ class App extends React.Component {
     this.forceUpdate();
   }
 
+  changeSongPlayback(value) {
+    const song = this.state.song;
+    song.changePlayback(value);
+  }
+
   render() {
     const song = this.state.song;
     const col = <div className="col-sm-2"></div>;
@@ -93,6 +99,13 @@ class App extends React.Component {
           </div>
           {col}
         </div>
+        <div className="row">
+          {col}
+          <div className="col-md">
+            <Playback onClick={this.changeSongPlayback.bind(this)}/>
+          </div>
+          {col}
+        </div>
       </div>
     );
   }
@@ -122,6 +135,5 @@ function PlayButton(props) {
     </button>
   );
 }
-
 
 export default App;
