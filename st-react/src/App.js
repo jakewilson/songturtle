@@ -1,7 +1,7 @@
 import React from 'react';
 import Song from './Song.js';
 import Renderer from './renderer.js';
-import {formatTime} from './util.js';
+import {formatTime, getSelectionBar, getSelectionBarFromSeconds, getSecondsFromSelectionBar} from './util.js';
 import './App.css';
 import './bootstrap.min.css';
 
@@ -32,17 +32,54 @@ class SongInput extends React.Component {
   }
 }
 
-function Time(props) {
-  return (
-    <span>{formatTime(props.currentTime)}/{formatTime(props.totalTime)}</span>
-  );
+class SongTime extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      currentTime: this.props.song.position
+    };
+
+    this.tick = this.tick.bind(this);
+  }
+
+  componentDidMount() {
+    this.intervalID = setInterval(
+      () => this.tick(),
+      500
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.intervalID);
+  }
+
+  tick() {
+    this.setState({
+      currentTime: this.props.song.position
+    });
+  }
+
+  render() {
+    return (
+      <span>{formatTime(this.props.mouseTime || this.state.currentTime)}/{formatTime(this.props.song.duration)}</span>
+    );
+  }
 }
 
 class SongInfo extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      renderer: null,
+      mouseTime: null // the time of the song being hovered over by the mouse
+    };
+
     this.canvas = React.createRef();
+    this.onCanvasClick = this.onCanvasClick.bind(this);
+    this.onCanvasMouseMove = this.onCanvasMouseMove.bind(this);
+    this.onCanvasMouseLeave = this.onCanvasMouseLeave.bind(this);
   }
 
   componentDidMount() {
@@ -50,6 +87,25 @@ class SongInfo extends React.Component {
     renderer.drawWaveform();
     this.setState({
       renderer: renderer
+    });
+  }
+
+  onCanvasClick(event) {
+    // TODO
+    this.props.song.play();
+  }
+
+  onCanvasMouseMove(event) {
+    this.state.renderer.selectionBar = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
+    this.setState((state, props) => ({
+      mouseTime: getSecondsFromSelectionBar(props.song, state.renderer.selectionBar)
+    }));
+  }
+
+  onCanvasMouseLeave(event) {
+    this.state.renderer.selectionBar = null;
+    this.setState({
+      mouseTime: null // TODO may need to set this to the song time
     });
   }
 
@@ -62,9 +118,14 @@ class SongInfo extends React.Component {
       <div>
         <span><strong>{this.props.name}</strong></span>
         <hr />
-        <Time currentTime={this.props.song.position} totalTime={this.props.song.duration} />
+        <SongTime mouseTime={this.state.mouseTime} song={this.props.song} />
         <br />
-        <canvas className="w-100 h-25 SongCanvas" width="600" ref={this.canvas}></canvas>
+        <canvas
+          className="w-100 h-25 SongCanvas" width="600" ref={this.canvas}
+          onClick={this.onCanvasClick}
+          onMouseMove={this.onCanvasMouseMove}
+          onMouseLeave={this.onCanvasMouseLeave}
+        ></canvas>
       </div>
     );
   }

@@ -90,4 +90,60 @@ function hideElement(elem) {
   elem.setAttribute('style', 'display:none');
 }
 
+/**
+ * Given a canvas selectionBar, return the number of
+ * seconds it corresponds to in the song
+ *
+ * @param song the song
+ * @param selectionBar the selectionBar
+ * @return the time in seconds of the song
+ */
+export function getSecondsFromSelectionBar(song, selectionBar) {
+  return selectionBar * (song.duration / song.waveform.length);
+}
 
+/**
+ * Given the seconds, return the corresponding canvas waveform bar
+ *
+ * @param song the song
+ * @param seconds the seconds
+ * @return the waveform bar number on the canvas
+ */
+export function getSelectionBarFromSeconds(song, seconds) {
+  return Math.floor(seconds * (song.waveform.length / song.duration));
+}
+
+/**
+ * Returns the "bar" number on the track that the mouse is selecting
+ *
+ * @param e the event to get the mouse data from
+ * @param song the song
+ * @param canvas the canvas
+ * @return a number between 0 and [waveform.length] specifying which bar is selected
+ */
+export function getSelectionBar(e, song, canvas) {
+  return Math.floor(mousePosToCanvasPos(e.clientX, e.clientY, canvas).x * (song.waveform.length / canvas.width));
+}
+
+/**
+ * Converts mouse "page" coordinates to canvas coordinates
+ *
+ * @return an object with two attributes, x and y, of the canvas coordinates
+ */
+function mousePosToCanvasPos(mouseX, mouseY, canvas) {
+  // the "bounding rectangle" of the canvas - this contains
+  // the canvas coordinates relative to the page
+  const boundingRect = canvas.getClientRects()[0];
+
+  // this will give us the mouse position relative to the canvas in page
+  // coordinates
+  mouseX -= boundingRect.x;
+  mouseY -= boundingRect.y;
+
+  // now convert the page coordinates to canvas coordinates - where in the viewport
+  // the mouse was clicked
+  return {
+    x: mouseX * (canvas.width / boundingRect.width),
+    y: mouseY * (canvas.height / boundingRect.height)
+  };
+}

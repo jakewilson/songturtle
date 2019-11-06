@@ -224,6 +224,17 @@ function Song(audioCtx, audioBuffer) {
     // the phase vocoder uses the playback inverse
     _nodePlayback = 1 / playback;
   };
+
+  this.toggle = function() {
+    if (this.isPlaying) {
+      console.log('stopping');
+      this.stop();
+    } else {
+      console.log('playing');
+      this.play();
+    }
+  };
+
 }
 
 export default Song;
