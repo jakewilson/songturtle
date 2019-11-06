@@ -169,6 +169,10 @@ function Song(audioCtx, audioBuffer) {
     this.looping = true;
     this.loopStart = start;
     this.loopEnd = end;
+
+    if (this.position < this.loopStart) {
+      this.seek(this.loopStart);
+    }
   };
 
   /**

@@ -1,3 +1,5 @@
+import {getSelectionBarFromSeconds} from './util.js';
+
 /**
  * An object to render a waveform
  */
@@ -69,19 +71,20 @@ function Renderer(canvas, song) {
       }
     } else {
       // draw the loop
-      if (this.loopStart !== null && this.loopEnd !== null) {
-        this._drawBars(this.waveformColor, 0, this.loopStart);
+      let loopStart = getSelectionBarFromSeconds(this.song, this.song.loopStart);
+      let loopEnd = getSelectionBarFromSeconds(this.song, this.song.loopEnd);
 
-        this._drawBars(this.loopProgressColor, this.loopStart, progressBars);
-        this._drawBars(this.loopColor, progressBars, this.loopEnd);
+      this._drawBars(this.waveformColor, 0, loopStart);
 
-        this._drawBars(this.waveformColor, this.loopEnd);
-      }
+      this._drawBars(this.loopProgressColor, loopStart, progressBars);
+      this._drawBars(this.loopColor, progressBars, loopEnd);
+
+      this._drawBars(this.waveformColor, loopEnd);
 
       // draw the selected loop
       if (this.selectionStart !== null && this.selectionEnd !== null) {
-        const loopStart = Math.min(this.selectionStart, this.selectionEnd);
-        const loopEnd   = Math.max(this.selectionStart, this.selectionEnd);
+        loopStart = Math.min(this.selectionStart, this.selectionEnd);
+        loopEnd   = Math.max(this.selectionStart, this.selectionEnd);
 
         this._drawBars(this.loopColor, loopStart, loopEnd + 1);
       }

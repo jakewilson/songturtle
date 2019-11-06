@@ -60,13 +60,18 @@ class App extends React.Component {
 
     const reader = new FileReader();
 
+    if (this.state.song) {
+      this.state.song.stop();
+    }
+
     reader.addEventListener('load', (e) => {
       this.readFile(e.target.result);
     });
 
     reader.readAsArrayBuffer(files[0]);
     this.setState({
-      songName: files[0].name
+      songName: files[0].name,
+      song: null
     })
   }
 
@@ -79,6 +84,15 @@ class App extends React.Component {
     })
   }
 
+  createLoop(start, end) {
+    const song = this.state.song;
+    song.loop(start, end);
+
+    this.setState({
+      song: song
+    });
+  }
+
   changeSongPlayback(value) {
     const song = this.state.song;
     song.changePlayback(value);
@@ -86,6 +100,13 @@ class App extends React.Component {
 
   onCanvasClick(seconds) {
     const song = this.state.song;
+    // if the song is looping, and the user clicks inside the loop,
+    // seek to that position in the loop. If the user clicks outside the loop,
+    // remove the loop and seek to that position
+    if (song.looping && (seconds < song.loopStart || seconds > song.loopEnd)) {
+      song.unloop();
+    }
+
     song.seek(seconds);
     song.play();
 
@@ -96,6 +117,7 @@ class App extends React.Component {
 
   onKeyDown(event) {
     const song = this.state.song;
+
     if (!song)
       return;
 
@@ -112,30 +134,40 @@ class App extends React.Component {
         break;
       }
 
-      case "Escape": case "Backspace":
-        // TODO cancel loop
+      case "Escape": case "Backspace": {
+        song.unloop();
         break;
+      }
 
       case "ArrowLeft": {
         event.preventDefault();
         song.seek(song.position - 5);
-
-        this.setState({
-          song: song
-        });
         break;
       }
 
       case "ArrowRight": {
         event.preventDefault();
         song.seek(song.position + 5);
-
-        this.setState({
-          song: song
-        });
         break;
       }
+
+      case "0":
+      case "1":
+      case "2":
+      case "3":
+      case "4":
+      case "5":
+      case "6":
+      case "7":
+      case "8":
+      case "9":
+        song.seek((key / 10) * song.duration);
+        break;
     }
+
+    this.setState({
+      song: song
+    });
   }
 
   render() {
@@ -170,6 +202,7 @@ class App extends React.Component {
             <SongInfo
               song={song} name={this.state.songName}
               onCanvasClick={this.onCanvasClick.bind(this)}
+              createLoop={this.createLoop.bind(this)}
             />
             <PlayButton onClick={this.toggleSong} playing={this.state.song.isPlaying} />
           </div>
