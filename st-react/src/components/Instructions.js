@@ -5,31 +5,23 @@ function Instructions(props) {
   return (
     <form>
       <div className="form-row">
-        <div className="col text-right">
-          <Key value="L" className="pr-2 pl-2"/>
-        </div>
+        <Key value="L" />
         <div className="col text-left">
           <span>start/end loop</span>
         </div>
         {col}{col}
-        <div className="col text-right">
-          <Key value="spacebar" />
-        </div>
+        <Key value="spacebar" />
         <div className="col text-right">
           <span>play/pause</span>
         </div>
       </div>
       <div className="form-row mt-3">
-        <div className="col text-right">
-          <Key value="backspace" />
-        </div>
+        <Key value="backspace" />
         <div className="col text-left">
           <span>remove loop</span>
         </div>
         {col}{col}
-        <div className="col text-right">
-          <Key value="&#8592;&#8594;"/>
-        </div>
+        <Key value="&#8592;&#8594;"/>
         <div className="col text-right">
           <span>seek +/- 5 seconds</span>
         </div>
@@ -40,7 +32,9 @@ function Instructions(props) {
 
 function Key(props) {
   return (
-    <span className="Key">{props.value}</span>
+    <div className="col text-right">
+      <span className="Key">{props.value}</span>
+    </div>
   );
 }
 
