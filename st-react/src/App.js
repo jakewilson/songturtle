@@ -267,6 +267,7 @@ class App extends React.Component {
               <LoopInfo
                 start={song.loopStart} end={song.loopEnd}
                 onFocus={this.ignoreKeyStrokes} onBlur={this.changeLoopSettings}
+                key={String(song.loopStart).concat(song.loopEnd)}
               />
             }
           </div>

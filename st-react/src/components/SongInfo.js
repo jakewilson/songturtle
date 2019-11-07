@@ -10,6 +10,7 @@ class SongInfo extends React.Component {
     this.state = {
       renderer: null,
       mouseTime: null, // the time of the song being hovered over by the mouse
+      mouseDrag: false,
       mouseDownTime: null
     };
 
@@ -21,6 +22,7 @@ class SongInfo extends React.Component {
     this.onCanvasMouseDown = this.onCanvasMouseDown.bind(this);
     this.onCanvasMouseUp = this.onCanvasMouseUp.bind(this);
     this.onCanvasMouseLeave = this.onCanvasMouseLeave.bind(this);
+    this.mouseDrag = this.mouseDrag.bind(this);
   }
 
   componentDidMount() {
@@ -34,7 +36,15 @@ class SongInfo extends React.Component {
 
   onCanvasMouseMove(event) {
     const renderer = this.state.renderer;
-    renderer.selectionBar = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
+    const selection = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
+
+    if (this.mouseDrag()) {
+      renderer.selectionStart = this.state.selectionStart;
+      renderer.selectionEnd = selection;
+      renderer.selectionBar = null;
+    } else {
+      renderer.selectionBar = selection;
+    }
 
     this.setState((state, props) => ({
       renderer: renderer,
@@ -64,23 +74,37 @@ class SongInfo extends React.Component {
     const song = this.props.song;
 
     let selection = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
-    if (Date.now() - this.state.mouseDownTime <= this.CLICK_TIME_MS) {
-      // convert the selection bar into actual seconds, then jump to that time
-      let offset = getSecondsFromSelectionBar(song, selection);
-
-      this.props.onCanvasClick(offset);
-    } else { // the user dragged the mouse
+    if (this.mouseDrag()) {
       // if the user dragged the mouse to the left, we will switch
       // the start and end positions
       const start = Math.min(this.state.selectionStart, selection);
       const end   = Math.max(this.state.selectionStart, selection);
       this.props.createLoop(getSecondsFromSelectionBar(song, start), getSecondsFromSelectionBar(song, end));
+
+      renderer.selectionStart = null;
+      renderer.selectionEnd = null;
+    } else {
+      // convert the selection bar into actual seconds, then jump to that time
+      const offset = getSecondsFromSelectionBar(song, selection);
+
+      this.props.onCanvasClick(offset);
     }
 
     this.setState({
       renderer: renderer,
+      selectionStart: null,
       mouseDownTime: null
     });
+  }
+
+  /**
+   * @return true if the mouse is dragging, false otherwise
+   */
+  mouseDrag() {
+    if (this.state.mouseDownTime === null)
+      return false;
+
+    return (Date.now() - this.state.mouseDownTime > this.CLICK_TIME_MS);
   }
 
   render() {
