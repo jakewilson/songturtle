@@ -36,7 +36,7 @@ function padSeconds(seconds) {
  * Parses a time string and returns the time in seconds or -1 if invalid
  * @param time the string to parse
  */
-function parseTime(time) {
+export function parseTime(time) {
   if (time === '') {
     return -1;
   }

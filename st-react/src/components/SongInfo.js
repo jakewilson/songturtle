@@ -63,10 +63,10 @@ class SongInfo extends React.Component {
     const renderer = this.state.renderer;
     const song = this.props.song;
 
-    var selection = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
+    let selection = getSelectionBar(event.nativeEvent, this.props.song, this.canvas.current);
     if (Date.now() - this.state.mouseDownTime <= this.CLICK_TIME_MS) {
       // convert the selection bar into actual seconds, then jump to that time
-      var offset = getSecondsFromSelectionBar(song, selection);
+      let offset = getSecondsFromSelectionBar(song, selection);
 
       this.props.onCanvasClick(offset);
     } else { // the user dragged the mouse

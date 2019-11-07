@@ -1,9 +1,12 @@
 import React from 'react';
 import Song from './lib/song.js';
+import {parseTime} from './lib/util.js';
+
 import SongInput from './components/SongInput.js';
 import SongInfo from './components/SongInfo.js';
 import Playback from './components/Playback.js';
 import Instructions from './components/Instructions.js';
+import LoopInfo from './components/LoopInfo.js';
 
 import './css/App.css';
 import './css/bootstrap.min.css';
@@ -14,12 +17,15 @@ class App extends React.Component {
     this.state = {
       audioCtx: new AudioContext(),
       song: null,
+      ignoreKeyStrokes: false,
       error: false
     }
 
     this.songLoadSuccess = this.songLoadSuccess.bind(this);
     this.songLoadError = this.songLoadError.bind(this);
     this.toggleSong = this.toggleSong.bind(this);
+    this.ignoreKeyStrokes = this.ignoreKeyStrokes.bind(this);
+    this.changeLoopSettings = this.changeLoopSettings.bind(this);
   }
 
   componentDidMount() {
@@ -116,6 +122,9 @@ class App extends React.Component {
   }
 
   onKeyDown(event) {
+    if (this.state.ignoreKeyStrokes)
+      return;
+
     const song = this.state.song;
 
     if (!song)
@@ -170,6 +179,52 @@ class App extends React.Component {
     });
   }
 
+  /**
+   * Ignore all app keystrokes. Used if another component wants to use them and not get overridden
+   */
+  ignoreKeyStrokes() {
+    this.setState({
+      ignoreKeyStrokes: true
+    });
+  }
+
+  /**
+   * Change the loop settings (loopStart or loopEnd)
+   * @param {string} type either 'start' or 'end'
+   * @param {int} time the new parsed time
+   * @return the newtime to the caller if accepted, -1 if invalid time or rejected for other reasons
+   */
+  changeLoopSettings(type, time) {
+    const song = this.state.song;
+    const newTime = parseTime(time);
+    let ret = -1;
+
+    if (newTime !== -1) {
+      if (type === 'start') {
+        if (newTime < song.loopEnd) {
+          song.loopStart = newTime;
+          ret = newTime;
+
+          if (song.position < song.loopStart) {
+            song.seek(song.loopStart);
+          }
+        }
+      } else if (type === 'end') {
+        if (newTime > song.loopStart && newTime < song.duration) {
+          song.loopEnd = newTime;
+          ret = newTime;
+        }
+      }
+    }
+
+    this.setState({
+      song: song,
+      ignoreKeyStrokes: false
+    });
+
+    return ret;
+  }
+
   render() {
     const song = this.state.song;
     const col = <div className="col-sm-2"></div>;
@@ -206,7 +261,15 @@ class App extends React.Component {
             />
             <PlayButton onClick={this.toggleSong} playing={this.state.song.isPlaying} />
           </div>
-          {col}
+          <div className="col-sm-2">
+            {
+              song.looping &&
+              <LoopInfo
+                start={song.loopStart} end={song.loopEnd}
+                onFocus={this.ignoreKeyStrokes} onBlur={this.changeLoopSettings}
+              />
+            }
+          </div>
         </div>
         <div className="row">
           {col}
