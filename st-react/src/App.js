@@ -92,6 +92,9 @@ class App extends React.Component {
 
   createLoop(start, end) {
     const song = this.state.song;
+    if (!start || !end) {
+      return;
+    }
     song.loop(start, end);
 
     this.setState({
@@ -258,6 +261,7 @@ class App extends React.Component {
               song={song} name={this.state.songName}
               onCanvasClick={this.onCanvasClick.bind(this)}
               createLoop={this.createLoop.bind(this)}
+              ignoreKeyStrokes={this.state.ignoreKeyStrokes}
             />
             <PlayButton onClick={this.toggleSong} playing={this.state.song.isPlaying} />
           </div>
