@@ -30,6 +30,16 @@ class App extends React.Component {
 
   componentDidMount() {
     document.addEventListener('keydown', this.onKeyDown.bind(this));
+
+    fetch('audio/songturtle.mp3', {method: 'GET'})
+    .then(results => results.arrayBuffer())
+    .then((buffer) => {
+      this.setState({
+        songName: 'songturtle.mp3'
+      });
+
+      this.readFile(buffer)
+    });
   }
 
   readFile(arrayBuffer) {
